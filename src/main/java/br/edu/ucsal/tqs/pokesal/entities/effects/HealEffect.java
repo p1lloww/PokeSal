@@ -26,6 +26,6 @@ public class HealEffect implements Effect {
 
   @Override
   public void applyEffect(PokeSal pokeSal) {
-    pokeSal.heal(healAmount);
+    pokeSal.heal(pokeSal.getMaxHp() * healAmount);
   }
 }

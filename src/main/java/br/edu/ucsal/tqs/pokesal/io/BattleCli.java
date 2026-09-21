@@ -5,6 +5,7 @@ import br.edu.ucsal.tqs.pokesal.entities.Item;
 import br.edu.ucsal.tqs.pokesal.entities.Move;
 import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 import br.edu.ucsal.tqs.pokesal.entities.Trainer;
+import br.edu.ucsal.tqs.pokesal.entities.catalogs.ItemCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.PokeSalCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.ItemAction;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.MoveAction;
@@ -69,6 +70,31 @@ public class BattleCli {
   }
 
   /**
+   * Apresenta os itens disponíveis no catálogo e pergunta ao jogador se deseja
+   * adicionar um à mochila, ou parar de escolher.
+   *
+   * @param itemsAlreadyChosen a quantidade de itens já escolhidos pelo treinador
+   * @return o item escolhido, ou null se o jogador optou por não escolher mais itens
+   */
+  public Item promptItemSelection(int itemsAlreadyChosen) {
+    List<Item> options = ItemCatalog.allAvailableItems();
+
+    System.out.println("Escolha um item para sua mochila (" + itemsAlreadyChosen
+        + "/" + Trainer.MAX_ITEMS + " escolhidos):");
+    for (int i = 0; i < options.size(); i++) {
+      System.out.println((i + 1) + " - " + options.get(i).getName());
+    }
+    System.out.println("0 - Não escolher mais itens");
+
+    int choice = readValidChoice(0, options.size());
+    if (choice == 0) {
+      return null;
+    }
+
+    return options.get(choice - 1);
+  }
+
+  /**
    * Pergunta ao jogador se deseja atacar ou usar um item, e retorna a ação escolhida.
    *
    * @param pokeSal           o PokeSal ativo do treinador que está escolhendo
@@ -79,9 +105,13 @@ public class BattleCli {
   public TurnAction promptAction(PokeSal pokeSal, List<Item> backpack, int currentTurnNumber) {
     System.out.println(pokeSal.getName() + ", escolha uma ação:");
     System.out.println("1 - Atacar");
-    System.out.println("2 - Usar item");
 
-    int choice = readValidChoice(2);
+    boolean canUseItem = !backpack.isEmpty();
+    if (canUseItem) {
+      System.out.println("2 - Usar item");
+    }
+
+    int choice = readValidChoice(canUseItem ? 2 : 1);
 
     if (choice == 1) {
       Move move = promptMoveChoice(pokeSal);
@@ -105,11 +135,6 @@ public class BattleCli {
   }
 
   private Item promptItemChoice(List<Item> backpack) {
-    if (backpack.isEmpty()) {
-      System.out.println("A mochila está vazia.");
-      return null;
-    }
-
     System.out.println("Escolha um item:");
     for (int i = 0; i < backpack.size(); i++) {
       System.out.println((i + 1) + " - " + backpack.get(i).getName());
@@ -120,12 +145,16 @@ public class BattleCli {
   }
 
   private int readValidChoice(int maxOptions) {
+    return readValidChoice(1, maxOptions);
+  }
+
+  private int readValidChoice(int minOption, int maxOption) {
     int choice;
     while (true) {
       String input = scanner.nextLine();
       try {
         choice = Integer.parseInt(input);
-        if (choice >= 1 && choice <= maxOptions) {
+        if (choice >= minOption && choice <= maxOption) {
           break;
         }
         System.out.println("Opção inválida, tente novamente.");

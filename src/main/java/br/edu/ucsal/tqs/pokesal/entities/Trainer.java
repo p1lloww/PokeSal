@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Trainer {
 
-  private static final int MAX_ITEMS = 2;
+  public static final int MAX_ITEMS = 2;
 
   private final String name;
   private final PokeSal pokeSal;
