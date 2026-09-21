@@ -49,4 +49,16 @@ public record Move(
       throw new IllegalArgumentException("statusChance deve estar entre 0.0 e 1.0");
     }
   }
+
+  /**
+   * Cria um Move sem nenhuma condição de status associada.
+   *
+   * @param name        o nome do golpe
+   * @param description a descrição do golpe
+   * @param type        o tipo elemental do golpe
+   * @param power       o poder base do golpe, usado no cálculo de dano
+   */
+  public Move(String name, String description, ElementType type, int power) {
+    this(name, description, type, power, null, 0.0);
+  }
 }

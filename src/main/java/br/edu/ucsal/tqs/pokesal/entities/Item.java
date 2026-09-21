@@ -44,19 +44,17 @@ public class Item {
    * agendando a reversão dos efeitos temporários para o turno correspondente.
    *
    * @param pokeSal o PokeSal que recebe os efeitos deste item
-   * @param currentTurn o turno em que o item está sendo usado
-   * @throws NullPointerException se pokeSal ou currentTurn forem nulos
+   * @param currentTurn o número do turno atual, usado para calcular a expiração de
+   *     efeitos temporários
+   * @throws NullPointerException se pokeSal for nulo
    */
-  public void useItem(PokeSal pokeSal, Turn currentTurn) {
+  public void useItem(PokeSal pokeSal, int currentTurn) {
     if (pokeSal == null) {
       throw new NullPointerException("O PokeSal não pode ser nulo");
     }
-    if (currentTurn == null) {
-      throw new NullPointerException("O turno não pode ser nulo");
-    }
 
     for (Effect effect : effects) {
-      pokeSal.receiveEffect(effect, currentTurn.getTurnNumber());
+      pokeSal.receiveEffect(effect, currentTurn);
     }
   }
 
