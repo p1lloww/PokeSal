@@ -1,4 +1,4 @@
-package br.edu.ucsal.tqs.pokesal.entities.StatusConditions;
+package br.edu.ucsal.tqs.pokesal.entities.statusconditions;
 
 import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 

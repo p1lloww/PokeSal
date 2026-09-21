@@ -1,4 +1,4 @@
-package br.edu.ucsal.tqs.pokesal.entities.Effects;
+package br.edu.ucsal.tqs.pokesal.entities.effects;
 
 import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 

@@ -1,4 +1,4 @@
-package br.edu.ucsal.tqs.pokesal.entities.Battlegrounds;
+package br.edu.ucsal.tqs.pokesal.entities.battlegrounds;
 
 import br.edu.ucsal.tqs.pokesal.entities.ElementType;
 import br.edu.ucsal.tqs.pokesal.entities.PokeSal;

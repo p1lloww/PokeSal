@@ -1,5 +1,7 @@
 package br.edu.ucsal.tqs.pokesal.entities;
 
+import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
+
 /**
  * Representa um golpe que um PokeSal pode executar em batalha, com tipo elemental, poder base e,
  * opcionalmente, uma condição de status que pode ser aplicada ao defensor com uma determinada

@@ -1,5 +1,8 @@
 package br.edu.ucsal.tqs.pokesal.entities;
 
+import br.edu.ucsal.tqs.pokesal.entities.effects.Effect;
+import br.edu.ucsal.tqs.pokesal.entities.passives.Passive;
+import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
