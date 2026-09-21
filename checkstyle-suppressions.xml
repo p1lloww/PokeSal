@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+  <!-- PokeSalCatalog guarda dados tabulares (atributos-base de cada espécie), não regras de
+       negócio escondidas — nomear uma constante por valor deixaria o arquivo maior sem
+       deixar mais claro. -->
+  <suppress checks="MagicNumber" files="PokeSalCatalog\.java"/>
+</suppressions>
