@@ -12,6 +12,8 @@ import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
  */
 public final class DamageCalculatorService {
 
+  private static final double DAMAGE_SCALE_FACTOR = 3.0;
+
   private DamageCalculatorService() {
   }
 
@@ -62,6 +64,6 @@ public final class DamageCalculatorService {
    * @return o dano base, antes da aplicação de multiplicadores de tipo, terreno e passiva
    */
   private static double calculateBaseDamage(PokeSal attacker, PokeSal defender, Move move) {
-    return ((double) attacker.getAtk() / defender.getDef()) * move.power();
+    return ((double) attacker.getAtk() / defender.getDef()) * move.power()/ DAMAGE_SCALE_FACTOR;
   }
 }
