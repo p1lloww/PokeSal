@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Representa um PokeSal em batalha, com HP, ATK, DEF e SPD atuais, tipo elemental,
- * lista de movimentos, uma passiva fixa, condição de status e efeitos temporários ativos.
+ * Representa um PokeSal em batalha, com HP, ATK, DEF e SPD atuais, tipo elemental, lista de
+ * movimentos, uma passiva fixa, condição de status e efeitos temporários ativos.
  */
 public class PokeSal {
+
   private static final int MAX_MOVES = 4;
 
   private final String name;
@@ -31,21 +32,21 @@ public class PokeSal {
   /**
    * Cria um novo PokeSal com os atributos, tipo, movimentos e passiva especificados.
    *
-   * @param name o nome do PokeSal
+   * @param name        o nome do PokeSal
    * @param description a descrição do PokeSal
-   * @param hp os pontos de vida máximos
-   * @param atk o atributo de ataque base
-   * @param def o atributo de defesa base
-   * @param spd o atributo de velocidade base
+   * @param hp          os pontos de vida máximos
+   * @param atk         o atributo de ataque base
+   * @param def         o atributo de defesa base
+   * @param spd         o atributo de velocidade base
    * @param elementType o tipo elemental
-   * @param moves a lista de movimentos, entre 1 e 4
-   * @param passive a habilidade passiva fixa deste PokeSal
-   * @throws IllegalArgumentException se algum atributo numérico não for positivo,
-   *     se a lista de movimentos for nula, vazia ou tiver mais de 4 elementos
-   * @throws NullPointerException se name, description, elementType ou passive forem nulos
+   * @param moves       a lista de movimentos, entre 1 e 4
+   * @param passive     a habilidade passiva fixa deste PokeSal
+   * @throws IllegalArgumentException se algum atributo numérico não for positivo, se a lista de
+   *                                  movimentos for nula, vazia ou tiver mais de 4 elementos
+   * @throws NullPointerException     se name, description, elementType ou passive forem nulos
    */
   public PokeSal(String name, String description, int hp, int atk, int def, int spd,
-                 ElementType elementType, List<Move> moves, Passive passive) {
+      ElementType elementType, List<Move> moves, Passive passive) {
 
     if (name == null) {
       throw new NullPointerException("O nome não pode ser nulo");
@@ -120,9 +121,8 @@ public class PokeSal {
   }
 
   /**
-   * Aplica um multiplicador ao ATK atual deste PokeSal. Usado tanto para conceder
-   * quanto para reverter buffs e debuffs de ataque, aplicando o multiplicador
-   * inverso na reversão.
+   * Aplica um multiplicador ao ATK atual deste PokeSal. Usado tanto para conceder quanto para
+   * reverter buffs e debuffs de ataque, aplicando o multiplicador inverso na reversão.
    *
    * @param multiplier fator multiplicativo aplicado ao ATK atual
    * @throws IllegalArgumentException se multiplier for negativo
@@ -136,9 +136,8 @@ public class PokeSal {
   }
 
   /**
-   * Aplica um multiplicador ao DEF atual deste PokeSal. Usado tanto para conceder
-   * quanto para reverter buffs e debuffs de defesa, aplicando o multiplicador
-   * inverso na reversão.
+   * Aplica um multiplicador ao DEF atual deste PokeSal. Usado tanto para conceder quanto para
+   * reverter buffs e debuffs de defesa, aplicando o multiplicador inverso na reversão.
    *
    * @param multiplier fator multiplicativo aplicado ao DEF atual
    * @throws IllegalArgumentException se multiplier for negativo
@@ -152,9 +151,8 @@ public class PokeSal {
   }
 
   /**
-   * Aplica um multiplicador ao SPD atual deste PokeSal. Usado tanto para conceder
-   * quanto para reverter buffs e debuffs de velocidade, aplicando o multiplicador
-   * inverso na reversão.
+   * Aplica um multiplicador ao SPD atual deste PokeSal. Usado tanto para conceder quanto para
+   * reverter buffs e debuffs de velocidade, aplicando o multiplicador inverso na reversão.
    *
    * @param multiplier fator multiplicativo aplicado ao SPD atual
    * @throws IllegalArgumentException se multiplier for negativo
@@ -168,9 +166,8 @@ public class PokeSal {
   }
 
   /**
-   * Aplica uma condição de status a este PokeSal, caso ele não possua nenhuma condição
-   * ativa e sua passiva não bloqueie a aplicação. Dispara o efeito imediato da condição,
-   * se houver.
+   * Aplica uma condição de status a este PokeSal, caso ele não possua nenhuma condição ativa e sua
+   * passiva não bloqueie a aplicação. Dispara o efeito imediato da condição, se houver.
    *
    * @param status a condição de status a ser aplicada
    * @throws NullPointerException se status for nulo
@@ -191,8 +188,8 @@ public class PokeSal {
   }
 
   /**
-   * Remove a condição de status atual deste PokeSal, caso exista uma. Não tem efeito
-   * caso o PokeSal não possua condição de status ativa.
+   * Remove a condição de status atual deste PokeSal, caso exista uma. Não tem efeito caso o PokeSal
+   * não possua condição de status ativa.
    */
   public void clearStatus() {
     this.statusCondition = null;
@@ -202,9 +199,9 @@ public class PokeSal {
    * Aplica o efeito de um item a este PokeSal, agendando sua reversão ao final do turno
    * correspondente caso o efeito seja temporário.
    *
-   * @param effect o efeito a ser aplicado
-   * @param currentTurn o número do turno atual, usado para calcular a expiração de
-   *     efeitos temporários
+   * @param effect      o efeito a ser aplicado
+   * @param currentTurn o número do turno atual, usado para calcular a expiração de efeitos
+   *                    temporários
    * @throws NullPointerException se effect for nulo
    */
   public void receiveEffect(Effect effect, int currentTurn) {
@@ -221,8 +218,8 @@ public class PokeSal {
   }
 
   /**
-   * Reverte todos os efeitos temporários cuja expiração está agendada para o turno
-   * informado, removendo-os da lista de efeitos ativos.
+   * Reverte todos os efeitos temporários cuja expiração está agendada para o turno informado,
+   * removendo-os da lista de efeitos ativos.
    *
    * @param currentTurn o número do turno a ser verificado
    */

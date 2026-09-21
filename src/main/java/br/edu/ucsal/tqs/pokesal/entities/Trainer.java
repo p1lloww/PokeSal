@@ -54,29 +54,14 @@ public class Trainer {
     backpack.add(item);
   }
 
-  /**
-   * Retorna o nome deste treinador.
-   *
-   * @return o nome
-   */
   public String getName() {
     return name;
   }
 
-  /**
-   * Retorna o PokeSal utilizado por este treinador.
-   *
-   * @return o PokeSal
-   */
   public PokeSal getPokeSal() {
     return pokeSal;
   }
 
-  /**
-   * Retorna uma cópia da lista de itens na mochila deste treinador.
-   *
-   * @return a lista de itens
-   */
   public List<Item> getBackpack() {
     return new ArrayList<>(backpack);
   }
