@@ -28,20 +28,22 @@ public interface Passive {
   /**
    * Reage ao momento em que o PokeSal dono desta passiva entra em campo no início da batalha.
    *
-   * @param self     o PokeSal dono desta passiva
+   * @param self o PokeSal dono desta passiva
    * @param opponent o PokeSal adversário presente na batalha
    */
-  void onSwitchIn(PokeSal self, PokeSal opponent);
+  default void onSwitchIn(PokeSal self, PokeSal opponent) {
+  }
 
   /**
    * Reage ao evento de o PokeSal dono desta passiva sofrer dano, permitindo aplicar efeitos
    * condicionais como buffs ativados por HP baixo.
    *
-   * @param self        o PokeSal dono desta passiva
-   * @param opponent    o PokeSal adversário que causou o dano
+   * @param self o PokeSal dono desta passiva
+   * @param opponent o PokeSal adversário que causou o dano
    * @param damageTaken a quantidade de dano recebida neste evento
    */
-  void onDamageTaken(PokeSal self, PokeSal opponent, double damageTaken);
+  default void onDamageTaken(PokeSal self, PokeSal opponent, double damageTaken) {
+  }
 
   /**
    * Reage ao fim de um turno de batalha, permitindo efeitos recorrentes como regeneração de HP ou
@@ -49,17 +51,20 @@ public interface Passive {
    *
    * @param self o PokeSal dono desta passiva
    */
-  void onTurnEnd(PokeSal self);
+  default void onTurnEnd(PokeSal self) {
+  }
 
   /**
    * Reage ao momento em que o PokeSal dono desta passiva executa um ataque, retornando um
    * multiplicador de dano adicional. Usado por passivas sensíveis ao terreno da batalha.
    *
-   * @param self         o PokeSal dono desta passiva
+   * @param self o PokeSal dono desta passiva
    * @param battleground o terreno ativo na batalha no momento do ataque
    * @return o multiplicador de dano a ser aplicado; 1.0 significa nenhuma alteração
    */
-  double onAttack(PokeSal self, Battleground battleground);
+  default double onAttack(PokeSal self, Battleground battleground) {
+    return 1.0;
+  }
 
   /**
    * Indica se esta passiva impede a aplicação de qualquer condição de status negativa no PokeSal
@@ -68,5 +73,7 @@ public interface Passive {
    * @param self o PokeSal dono desta passiva
    * @return true se a aplicação de status deve ser bloqueada; false caso contrário
    */
-  boolean preventsStatusApplication(PokeSal self);
+  default boolean preventsStatusApplication(PokeSal self) {
+    return false;
+  }
 }
