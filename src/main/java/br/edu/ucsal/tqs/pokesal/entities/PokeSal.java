@@ -192,6 +192,9 @@ public class PokeSal {
    * não possua condição de status ativa.
    */
   public void clearStatus() {
+    if (statusCondition != null) {
+      statusCondition.onRemove(this);
+    }
     this.statusCondition = null;
   }
 
