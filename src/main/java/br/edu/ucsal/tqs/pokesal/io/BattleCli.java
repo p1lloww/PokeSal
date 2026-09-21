@@ -35,13 +35,22 @@ public class BattleCli {
   }
 
   /**
-   * Pergunta ao jogador o nome do treinador.
+   * Pergunta ao jogador o nome do treinador, repetindo a pergunta até que um nome
+   * não vazio seja informado.
    *
    * @return o nome informado
    */
   public String promptTrainerName() {
-    System.out.println("Digite o nome do treinador:");
-    return scanner.nextLine();
+    String name;
+    do {
+      System.out.println("Digite o nome do treinador:");
+      name = scanner.nextLine();
+      if (name.isBlank()) {
+        System.out.println("O nome não pode ser vazio.");
+      }
+    } while (name.isBlank());
+
+    return name;
   }
 
   /**
