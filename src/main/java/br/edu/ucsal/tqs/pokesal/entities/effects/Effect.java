@@ -1,4 +1,6 @@
-package br.edu.ucsal.tqs.pokesal.entities;
+package br.edu.ucsal.tqs.pokesal.entities.Effects;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 
 /**
  * Representa o efeito de um item de batalha, aplicado a um PokeSal quando o item é

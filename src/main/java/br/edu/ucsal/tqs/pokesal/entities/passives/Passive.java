@@ -1,4 +1,7 @@
-package br.edu.ucsal.tqs.pokesal.entities;
+package br.edu.ucsal.tqs.pokesal.entities.Passives;
+
+import br.edu.ucsal.tqs.pokesal.entities.Battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 
 /**
  * Representa uma habilidade passiva que um PokeSal carrega, reagindo automaticamente a eventos de

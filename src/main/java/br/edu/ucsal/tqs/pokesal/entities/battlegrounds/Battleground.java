@@ -1,4 +1,7 @@
-package br.edu.ucsal.tqs.pokesal.entities;
+package br.edu.ucsal.tqs.pokesal.entities.Battlegrounds;
+
+import br.edu.ucsal.tqs.pokesal.entities.ElementType;
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 
 /**
  * Representa um efeito de terreno ativo durante uma batalha, afetando o dano causado por golpes de

@@ -1,4 +1,6 @@
-package br.edu.ucsal.tqs.pokesal.entities;
+package br.edu.ucsal.tqs.pokesal.entities.StatusConditions;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 
 /**
  * Representa uma condição de status negativa aplicada a um PokeSal durante a batalha, como
