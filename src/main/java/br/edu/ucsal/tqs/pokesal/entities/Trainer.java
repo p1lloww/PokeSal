@@ -23,8 +23,8 @@ public class Trainer {
    * @throws NullPointerException se name ou pokeSal forem nulos
    */
   public Trainer(String name, PokeSal pokeSal) {
-    if (name == null) {
-      throw new NullPointerException("O nome não pode ser nulo");
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("O nome não pode ser vazio");
     }
     if (pokeSal == null) {
       throw new NullPointerException("O PokeSal não pode ser nulo");
