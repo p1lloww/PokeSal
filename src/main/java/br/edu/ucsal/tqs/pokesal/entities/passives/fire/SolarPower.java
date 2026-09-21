@@ -2,6 +2,7 @@ package br.edu.ucsal.tqs.pokesal.entities.passives.fire;
 
 import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.fire.HotAsphalt;
 import br.edu.ucsal.tqs.pokesal.entities.passives.Passive;
 
 /**

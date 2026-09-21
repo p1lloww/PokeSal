@@ -42,28 +42,4 @@ public interface StatusCondition {
    */
   default void onTurnEnd(PokeSal self) {
   }
-
-  /**
-   * Modifica o valor de ataque informado, refletindo o efeito desta condição de status sobre o
-   * atributo.
-   *
-   * @param baseAttack o valor de ataque antes da modificação
-   * @return o valor de ataque já modificado; igual a baseAttack caso esta condição não afete o
-   *     ataque
-   */
-  default double modifyAttack(double baseAttack) {
-    return baseAttack;
-  }
-
-  /**
-   * Modifica o valor de velocidade informado, refletindo o efeito desta condição de status sobre o
-   * atributo.
-   *
-   * @param baseSpeed o valor de velocidade antes da modificação
-   * @return o valor de velocidade já modificado; igual a baseSpeed caso esta condição não afete a
-   *     velocidade
-   */
-  default double modifySpeed(double baseSpeed) {
-    return baseSpeed;
-  }
 }
