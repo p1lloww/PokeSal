@@ -42,4 +42,13 @@ public interface StatusCondition {
    */
   default void onTurnEnd(PokeSal self) {
   }
+
+  /**
+   * Reage ao momento em que esta condição de status é removida do PokeSal informado, permitindo
+   * reverter efeitos aplicados em onApply, se houver.
+   *
+   * @param self o PokeSal do qual a condição foi removida
+   */
+  default void onRemove(PokeSal self) {
+  }
 }
