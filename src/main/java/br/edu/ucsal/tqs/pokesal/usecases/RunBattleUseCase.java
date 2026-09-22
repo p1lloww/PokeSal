@@ -34,14 +34,8 @@ public class RunBattleUseCase {
     while (!battle.isOver()) {
       battleCli.renderBattleState(battle);
 
-      TurnAction action1 = battleCli.promptAction(
-          battle.getTrainerA().getPokeSal(),
-          battle.getTrainerA().getBackpack(),
-          turnNumber);
-      TurnAction action2 = battleCli.promptAction(
-          battle.getTrainerB().getPokeSal(),
-          battle.getTrainerB().getBackpack(),
-          turnNumber);
+      TurnAction action1 = battleCli.promptAction(battle.getTrainerA(), turnNumber);
+      TurnAction action2 = battleCli.promptAction(battle.getTrainerB(), turnNumber);
 
       Turn turn = new Turn(turnNumber);
       turn.execute(battle.getTrainerA().getPokeSal(), battle.getTrainerB().getPokeSal(),

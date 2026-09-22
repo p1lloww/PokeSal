@@ -35,8 +35,8 @@ public class BattleCli {
   }
 
   /**
-   * Pergunta ao jogador o nome do treinador, repetindo a pergunta até que um nome
-   * não vazio seja informado.
+   * Pergunta ao jogador o nome do treinador, repetindo a pergunta até que um nome não vazio seja
+   * informado.
    *
    * @return o nome informado
    */
@@ -79,8 +79,8 @@ public class BattleCli {
   }
 
   /**
-   * Apresenta os itens disponíveis no catálogo e pergunta ao jogador se deseja
-   * adicionar um à mochila, ou parar de escolher.
+   * Apresenta os itens disponíveis no catálogo e pergunta ao jogador se deseja adicionar um à
+   * mochila, ou parar de escolher.
    *
    * @param itemsAlreadyChosen a quantidade de itens já escolhidos pelo treinador
    * @return o item escolhido, ou null se o jogador optou por não escolher mais itens
@@ -106,12 +106,14 @@ public class BattleCli {
   /**
    * Pergunta ao jogador se deseja atacar ou usar um item, e retorna a ação escolhida.
    *
-   * @param pokeSal           o PokeSal ativo do treinador que está escolhendo
-   * @param backpack          a mochila do treinador que está escolhendo
+   * @param trainer           o treinador que está escolhendo a ação
    * @param currentTurnNumber o número do turno atual
    * @return a TurnAction correspondente à escolha do jogador
    */
-  public TurnAction promptAction(PokeSal pokeSal, List<Item> backpack, int currentTurnNumber) {
+  public TurnAction promptAction(Trainer trainer, int currentTurnNumber) {
+    PokeSal pokeSal = trainer.getPokeSal();
+    List<Item> backpack = trainer.getBackpack();
+
     System.out.println(pokeSal.getName() + ", escolha uma ação:");
     System.out.println("1 - Atacar");
 
@@ -128,7 +130,7 @@ public class BattleCli {
     }
 
     Item item = promptItemChoice(backpack);
-    return new ItemAction(item, currentTurnNumber);
+    return new ItemAction(item, trainer, currentTurnNumber);
   }
 
   private Move promptMoveChoice(PokeSal pokeSal) {

@@ -54,6 +54,15 @@ public class Trainer {
     backpack.add(item);
   }
 
+  /**
+   * Remove um item da mochila deste treinador após seu uso.
+   *
+   * @param item o item a ser removido
+   */
+  public void removeItem(Item item) {
+    backpack.remove(item);
+  }
+
   public String getName() {
     return name;
   }
