@@ -12,7 +12,7 @@ import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
  */
 public final class DamageCalculatorService {
 
-  private static final double DAMAGE_SCALE_FACTOR = 10.0;
+  private static final double DAMAGE_SCALE_FACTOR = 5.0;
 
   private DamageCalculatorService() {
   }
