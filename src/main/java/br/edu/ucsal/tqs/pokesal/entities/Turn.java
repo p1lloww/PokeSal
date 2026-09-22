@@ -2,6 +2,7 @@ package br.edu.ucsal.tqs.pokesal.entities;
 
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnAction;
+import java.util.Random;
 
 /**
  * Representa um turno de batalha, responsável por decidir a ordem de ação entre os dois PokeSal com
@@ -16,6 +17,8 @@ public class Turn {
   private PokeSal secondActor;
   private TurnAction firstAction;
   private TurnAction secondAction;
+  private static final Random RANDOM = new Random();
+
 
   /**
    * Cria um novo turno com o número informado. A ordem de ação e as ações executadas só são
@@ -47,7 +50,14 @@ public class Turn {
       throw new NullPointerException("As ações não podem ser nulas");
     }
 
-    if (pokeSal1.getSpd() >= pokeSal2.getSpd()) {
+    boolean pokeSal1First;
+    if (pokeSal1.getSpd() == pokeSal2.getSpd()) {
+      pokeSal1First = RANDOM.nextBoolean();
+    } else {
+      pokeSal1First = pokeSal1.getSpd() > pokeSal2.getSpd();
+    }
+
+    if (pokeSal1First) {
       this.firstActor = pokeSal1;
       this.firstAction = action1;
       this.secondActor = pokeSal2;
