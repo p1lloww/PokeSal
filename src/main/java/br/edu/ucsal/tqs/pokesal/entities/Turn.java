@@ -2,7 +2,6 @@ package br.edu.ucsal.tqs.pokesal.entities;
 
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnAction;
-import java.util.Random;
 
 /**
  * Representa um turno de batalha, responsável por decidir a ordem de ação entre os dois PokeSal com
@@ -12,7 +11,6 @@ import java.util.Random;
  */
 public class Turn {
 
-  private static final Random RANDOM = new Random();
   private final int turnNumber;
   private PokeSal firstActor;
   private PokeSal secondActor;
