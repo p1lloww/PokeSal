@@ -15,14 +15,18 @@ import java.util.Map;
 public class PokeSal {
 
   private static final int MAX_MOVES = 4;
+  private static final double STAT_TOLERANCE = 1e-9;
 
   private final String name;
   private final String description;
   private int hp;
   private final int maxHp;
-  private int atk;
-  private int def;
-  private int spd;
+  private final int baseAtk;
+  private final int baseDef;
+  private final int baseSpd;
+  private double atkMultiplier = 1.0;
+  private double defMultiplier = 1.0;
+  private double spdMultiplier = 1.0;
   private final ElementType elementType;
   private final List<Move> moves;
   private final Passive passive;
@@ -83,9 +87,9 @@ public class PokeSal {
     this.description = description;
     this.hp = hp;
     this.maxHp = hp;
-    this.atk = atk;
-    this.def = def;
-    this.spd = spd;
+    this.baseAtk = atk;
+    this.baseDef = def;
+    this.baseSpd = spd;
     this.elementType = elementType;
     this.moves = new ArrayList<>(moves);
     this.passive = passive;
@@ -121,10 +125,11 @@ public class PokeSal {
   }
 
   /**
-   * Aplica um multiplicador ao ATK atual deste PokeSal. Usado tanto para conceder quanto para
-   * reverter buffs e debuffs de ataque, aplicando o multiplicador inverso na reversão.
+   * Aplica um multiplicador ao ATK deste PokeSal. Usado tanto para conceder quanto para reverter
+   * buffs e debuffs de ataque, aplicando o multiplicador inverso na reversão. Os multiplicadores se
+   * acumulam sobre o ATK base, então a reversão devolve o valor original.
    *
-   * @param multiplier fator multiplicativo aplicado ao ATK atual
+   * @param multiplier fator multiplicativo aplicado ao ATK
    * @throws IllegalArgumentException se multiplier for negativo
    */
   public void applyAttackBuff(double multiplier) {
@@ -132,14 +137,15 @@ public class PokeSal {
       throw new IllegalArgumentException("o multiplicador nao pode ser negativo");
     }
 
-    atk = (int) (atk * multiplier);
+    atkMultiplier *= multiplier;
   }
 
   /**
-   * Aplica um multiplicador ao DEF atual deste PokeSal. Usado tanto para conceder quanto para
-   * reverter buffs e debuffs de defesa, aplicando o multiplicador inverso na reversão.
+   * Aplica um multiplicador ao DEF deste PokeSal. Usado tanto para conceder quanto para reverter
+   * buffs e debuffs de defesa, aplicando o multiplicador inverso na reversão. Os multiplicadores se
+   * acumulam sobre o DEF base, então a reversão devolve o valor original.
    *
-   * @param multiplier fator multiplicativo aplicado ao DEF atual
+   * @param multiplier fator multiplicativo aplicado ao DEF
    * @throws IllegalArgumentException se multiplier for negativo
    */
   public void applyDefenseBuff(double multiplier) {
@@ -147,14 +153,15 @@ public class PokeSal {
       throw new IllegalArgumentException("o multiplicador nao pode ser negativa");
     }
 
-    def = (int) (def * multiplier);
+    defMultiplier *= multiplier;
   }
 
   /**
-   * Aplica um multiplicador ao SPD atual deste PokeSal. Usado tanto para conceder quanto para
-   * reverter buffs e debuffs de velocidade, aplicando o multiplicador inverso na reversão.
+   * Aplica um multiplicador ao SPD deste PokeSal. Usado tanto para conceder quanto para reverter
+   * buffs e debuffs de velocidade, aplicando o multiplicador inverso na reversão. Os
+   * multiplicadores se acumulam sobre o SPD base, então a reversão devolve o valor original.
    *
-   * @param multiplier fator multiplicativo aplicado ao SPD atual
+   * @param multiplier fator multiplicativo aplicado ao SPD
    * @throws IllegalArgumentException se multiplier for negativo
    */
   public void applySpeedBuff(double multiplier) {
@@ -162,7 +169,7 @@ public class PokeSal {
       throw new IllegalArgumentException("o multiplicador nao pode ser negativa");
     }
 
-    spd = (int) (spd * multiplier);
+    spdMultiplier *= multiplier;
   }
 
   /**
@@ -234,6 +241,10 @@ public class PokeSal {
     }
   }
 
+  private static int applyMultiplier(int base, double multiplier) {
+    return (int) (base * multiplier + STAT_TOLERANCE);
+  }
+
   public String getName() {
     return name;
   }
@@ -251,15 +262,15 @@ public class PokeSal {
   }
 
   public int getAtk() {
-    return atk;
+    return applyMultiplier(baseAtk, atkMultiplier);
   }
 
   public int getDef() {
-    return def;
+    return applyMultiplier(baseDef, defMultiplier);
   }
 
   public int getSpd() {
-    return spd;
+    return applyMultiplier(baseSpd, spdMultiplier);
   }
 
   public ElementType getElementType() {
