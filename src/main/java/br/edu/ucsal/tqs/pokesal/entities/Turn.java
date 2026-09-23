@@ -12,13 +12,12 @@ import java.util.Random;
  */
 public class Turn {
 
+  private static final Random RANDOM = new Random();
   private final int turnNumber;
   private PokeSal firstActor;
   private PokeSal secondActor;
   private TurnAction firstAction;
   private TurnAction secondAction;
-  private static final Random RANDOM = new Random();
-
 
   /**
    * Cria um novo turno com o número informado. A ordem de ação e as ações executadas só são
@@ -52,7 +51,7 @@ public class Turn {
 
     boolean pokeSal1First;
     if (pokeSal1.getSpd() == pokeSal2.getSpd()) {
-      pokeSal1First = RANDOM.nextBoolean();
+      pokeSal1First = true;
     } else {
       pokeSal1First = pokeSal1.getSpd() > pokeSal2.getSpd();
     }
