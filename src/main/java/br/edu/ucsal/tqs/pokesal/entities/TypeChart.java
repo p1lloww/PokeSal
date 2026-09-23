@@ -1,6 +1,8 @@
 package br.edu.ucsal.tqs.pokesal.entities;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Tabela estática de multiplicadores de dano entre tipos elementais, cobrindo as relações de
@@ -42,5 +44,14 @@ public final class TypeChart {
    */
   public static double getMultiplier(ElementType attacker, ElementType defender) {
     return CHART.getOrDefault(new TypeMatchup(attacker, defender), NEUTRAL_MULTIPLIER);
+  }
+
+  /**
+   * Retorna o conjunto de combinações de tipos cadastradas nesta tabela.
+   *
+   * @return o conjunto de combinações cadastradas, não modificável
+   */
+  public static Set<TypeMatchup> getRegisteredMatchups() {
+    return Collections.unmodifiableSet(CHART.keySet());
   }
 }
