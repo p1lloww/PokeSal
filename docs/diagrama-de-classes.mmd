@@ -1,0 +1,336 @@
+---
+title: Diagrama de Classes - Sistema de Batalhas PokeSal
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#FFE0B2"
+    primaryBorderColor: "#333333"
+    primaryTextColor: "#111111"
+    lineColor: "#333333"
+    secondaryColor: "#FFE0B2"
+    tertiaryColor: "#FFFFFF"
+    fontFamily: "Helvetica, Arial, sans-serif"
+  themeCSS: "text, tspan { font-family: Helvetica, Arial, sans-serif; }"
+  htmlLabels: false
+  class:
+    htmlLabels: false
+---
+classDiagram
+  direction TB
+
+  %% ---------- Núcleo ----------
+  class Battle {
+    -trainerA: Trainer
+    -trainerB: Trainer
+    -battleground: Battleground
+    -turns: List~Turn~
+    -winner: Trainer
+    +addTurn(turn: Turn) void
+    +checkForWinner() void
+    +isOver() boolean
+    +getTrainerA() Trainer
+    +getTrainerB() Trainer
+    +getBattleground() Battleground
+    +getTurns() List~Turn~
+    +getWinner() Trainer
+  }
+
+  class Trainer {
+    +MAX_ITEMS: int$
+    -name: String
+    -pokeSal: PokeSal
+    -backpack: List~Item~
+    +addItem(item: Item) void
+    +removeItem(item: Item) void
+    +getName() String
+    +getPokeSal() PokeSal
+    +getBackpack() List~Item~
+  }
+
+  class PokeSal {
+    -name: String
+    -description: String
+    -hp: int
+    -maxHp: int
+    -baseAtk: int
+    -baseDef: int
+    -baseSpd: int
+    -atkMultiplier: double
+    -defMultiplier: double
+    -spdMultiplier: double
+    -elementType: ElementType
+    -moves: List~Move~
+    -passive: Passive
+    -statusCondition: StatusCondition
+    -activeEffects: Map~Integer, List~Effect~~
+    +takeDamage(amount: double) void
+    +heal(amount: double) void
+    +applyAttackBuff(multiplier: double) void
+    +applyDefenseBuff(multiplier: double) void
+    +applySpeedBuff(multiplier: double) void
+    +applyStatus(status: StatusCondition) void
+    +clearStatus() void
+    +receiveEffect(effect: Effect, currentTurn: int) void
+    +expireEffects(currentTurn: int) void
+    +getHp() int
+    +getMaxHp() int
+    +getAtk() int
+    +getDef() int
+    +getSpd() int
+    +getElementType() ElementType
+    +getPassive() Passive
+    +getStatusCondition() StatusCondition
+    +getMoves() List~Move~
+  }
+
+  class Move {
+    <<record>>
+    name: String
+    description: String
+    type: ElementType
+    power: int
+    statusEffect: StatusCondition
+    statusChance: double
+  }
+
+  class ElementType {
+    <<enumeration>>
+    FIRE
+    WATER
+    PLANT
+  }
+
+  class TypeMatchup {
+    <<record>>
+    attacker: ElementType
+    defender: ElementType
+  }
+
+  class TypeChart {
+    -CHART: Map~TypeMatchup, Double~$
+    +getMultiplier(attacker: ElementType, defender: ElementType)$ double
+    +getRegisteredMatchups()$ Set~TypeMatchup~
+  }
+
+  class DamageCalculatorService {
+    <<service>>
+    +calculateDamage(attacker: PokeSal, defender: PokeSal, move: Move, battleground: Battleground)$ double
+  }
+
+  %% ---------- Turnos ----------
+  class Turn {
+    -turnNumber: int
+    -firstActor: PokeSal
+    -secondActor: PokeSal
+    -firstAction: TurnAction
+    -secondAction: TurnAction
+    +execute(pokeSal1: PokeSal, pokeSal2: PokeSal, action1: TurnAction, action2: TurnAction, battleground: Battleground) void
+    +getTurnNumber() int
+    +getFirstActor() PokeSal
+    +getSecondActor() PokeSal
+  }
+
+  class TurnAction {
+    <<interface>>
+    +execute(actor: PokeSal, opponent: PokeSal, battleground: Battleground) void
+  }
+
+  class MoveAction {
+    -move: Move
+    +execute(actor: PokeSal, opponent: PokeSal, battleground: Battleground) void
+  }
+
+  class ItemAction {
+    -item: Item
+    -trainer: Trainer
+    -currentTurnNumber: int
+    +execute(actor: PokeSal, opponent: PokeSal, battleground: Battleground) void
+  }
+
+  %% ---------- Itens e efeitos ----------
+  class Item {
+    -name: String
+    -description: String
+    -effects: List~Effect~
+    +useItem(pokeSal: PokeSal, currentTurn: int) void
+    +getName() String
+    +getDescription() String
+    +getEffects() List~Effect~
+  }
+
+  class Effect {
+    <<interface>>
+    +applyEffect(pokeSal: PokeSal) void
+    +removeEffect(pokeSal: PokeSal) void
+    +isTemporary() boolean
+  }
+
+  class HealEffect {
+    -healAmount: double
+    +applyEffect(pokeSal: PokeSal) void
+  }
+
+  class SpeedBuffEffect {
+    +applyEffect(pokeSal: PokeSal) void
+    +removeEffect(pokeSal: PokeSal) void
+    +isTemporary() boolean
+  }
+
+  class StatusHealEffect {
+    <<abstract>>
+    -curedStatus: Class~StatusCondition~
+    +applyEffect(pokeSal: PokeSal) void
+  }
+
+  class SuperAntidote
+  class BurnHeal
+  class ParalyzeHeal
+
+  %% ---------- Passivas ----------
+  class Passive {
+    <<interface>>
+    +getName() String
+    +getDescription() String
+    +onSwitchIn(self: PokeSal, opponent: PokeSal) void
+    +onDamageTaken(self: PokeSal, opponent: PokeSal, damageTaken: double) void
+    +onTurnEnd(self: PokeSal) void
+    +onAttack(self: PokeSal, battleground: Battleground) double
+    +preventsStatusApplication(self: PokeSal) boolean
+  }
+
+  class LowHpAttackBoost {
+    <<abstract>>
+    -elementType: ElementType
+    -active: boolean
+    +getDescription() String
+    +onDamageTaken(self: PokeSal, opponent: PokeSal, damageTaken: double) void
+  }
+
+  class Blaze {
+    +getName() String
+  }
+
+  class Overgrow {
+    +getName() String
+  }
+
+  class Torrent {
+    +getName() String
+  }
+
+  class Intimidate {
+    +onSwitchIn(self: PokeSal, opponent: PokeSal) void
+  }
+
+  class RainDish {
+    +onSwitchIn(self: PokeSal, opponent: PokeSal) void
+  }
+
+  class LeafGuard {
+    +preventsStatusApplication(self: PokeSal) boolean
+  }
+
+  class SolarPower {
+    -active: boolean
+    +onAttack(self: PokeSal, battleground: Battleground) double
+    +onTurnEnd(self: PokeSal) void
+  }
+
+  %% ---------- Condições de status ----------
+  class StatusCondition {
+    <<interface>>
+    +getName() String
+    +getDescription() String
+    +onApply(self: PokeSal) void
+    +onTurnEnd(self: PokeSal) void
+    +onRemove(self: PokeSal) void
+  }
+
+  class Burn {
+    +onApply(self: PokeSal) void
+    +onTurnEnd(self: PokeSal) void
+    +onRemove(self: PokeSal) void
+  }
+
+  class Poison {
+    +onTurnEnd(self: PokeSal) void
+  }
+
+  class Paralyzed {
+    +onApply(self: PokeSal) void
+    +onRemove(self: PokeSal) void
+  }
+
+  %% ---------- Terrenos ----------
+  class Battleground {
+    <<interface>>
+    +getName() String
+    +getDescription() String
+    +onTurnEnd(activePokeSal: PokeSal) void
+    +modifyDamage(baseDamage: double, attackType: ElementType) double
+  }
+
+  class HotAsphalt {
+    +modifyDamage(baseDamage: double, attackType: ElementType) double
+  }
+
+  class WaterPuddle {
+    +modifyDamage(baseDamage: double, attackType: ElementType) double
+  }
+
+  class CentralFlowerbed {
+    +onTurnEnd(activePokeSal: PokeSal) void
+  }
+
+  %% ---------- Relações ----------
+  Battle "1" --> "2" Trainer : participantes
+  Battle "1" --> "1" Battleground : terreno
+  Battle "1" *-- "0..*" Turn : histórico
+  Trainer "1" *-- "1" PokeSal
+  Trainer "1" o-- "0..2" Item : mochila
+  PokeSal "1" *-- "1..4" Move
+  PokeSal "1" *-- "1" Passive
+  PokeSal "1" --> "0..1" StatusCondition
+  PokeSal "1" --> "0..*" Effect : efeitos ativos
+  PokeSal --> ElementType
+  Move --> ElementType
+  Move "1" --> "0..1" StatusCondition : statusEffect
+  Item "1" *-- "1..*" Effect
+  TypeChart --> TypeMatchup
+  TypeMatchup --> ElementType
+
+  Turn --> PokeSal
+  Turn --> TurnAction
+  TurnAction <|.. MoveAction
+  TurnAction <|.. ItemAction
+  MoveAction --> Move
+  ItemAction --> Item
+  ItemAction --> Trainer
+  MoveAction ..> DamageCalculatorService
+  DamageCalculatorService ..> TypeChart
+
+  Effect <|.. HealEffect
+  Effect <|.. SpeedBuffEffect
+  Effect <|.. StatusHealEffect
+  StatusHealEffect <|-- SuperAntidote
+  StatusHealEffect <|-- BurnHeal
+  StatusHealEffect <|-- ParalyzeHeal
+  StatusHealEffect ..> StatusCondition : cura
+
+  Passive <|.. LowHpAttackBoost
+  LowHpAttackBoost <|-- Blaze
+  LowHpAttackBoost <|-- Overgrow
+  LowHpAttackBoost <|-- Torrent
+  Passive <|.. Intimidate
+  Passive <|.. RainDish
+  Passive <|.. LeafGuard
+  Passive <|.. SolarPower
+  SolarPower ..> HotAsphalt : sinergia
+
+  StatusCondition <|.. Burn
+  StatusCondition <|.. Poison
+  StatusCondition <|.. Paralyzed
+
+  Battleground <|.. HotAsphalt
+  Battleground <|.. WaterPuddle
+  Battleground <|.. CentralFlowerbed
