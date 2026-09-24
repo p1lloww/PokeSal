@@ -44,9 +44,16 @@ public class ItemAction implements TurnAction {
    * @param actor        o PokeSal que recebe os efeitos do item
    * @param opponent     o PokeSal adversário no turno; não utilizado por esta ação
    * @param battleground o terreno ativo na batalha; não utilizado por esta ação
+   * @throws IllegalStateException se o item não estiver na mochila do treinador, seja porque já
+   *                               foi usado ou porque nunca foi adicionado
    */
   @Override
   public void execute(PokeSal actor, PokeSal opponent, Battleground battleground) {
+    if (!trainer.getBackpack().contains(item)) {
+      throw new IllegalStateException("O item " + item.getName()
+          + " não está na mochila do treinador");
+    }
+
     item.useItem(actor, currentTurnNumber);
     trainer.removeItem(item);
   }
