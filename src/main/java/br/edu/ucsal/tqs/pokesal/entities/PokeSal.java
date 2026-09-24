@@ -133,10 +133,7 @@ public class PokeSal {
    * @throws IllegalArgumentException se multiplier for negativo
    */
   public void applyAttackBuff(double multiplier) {
-    if (multiplier < 0) {
-      throw new IllegalArgumentException("o multiplicador nao pode ser negativo");
-    }
-
+    validateMultiplier(multiplier);
     atkMultiplier *= multiplier;
   }
 
@@ -149,10 +146,7 @@ public class PokeSal {
    * @throws IllegalArgumentException se multiplier for negativo
    */
   public void applyDefenseBuff(double multiplier) {
-    if (multiplier < 0) {
-      throw new IllegalArgumentException("o multiplicador nao pode ser negativa");
-    }
-
+    validateMultiplier(multiplier);
     defMultiplier *= multiplier;
   }
 
@@ -165,10 +159,7 @@ public class PokeSal {
    * @throws IllegalArgumentException se multiplier for negativo
    */
   public void applySpeedBuff(double multiplier) {
-    if (multiplier < 0) {
-      throw new IllegalArgumentException("o multiplicador nao pode ser negativa");
-    }
-
+    validateMultiplier(multiplier);
     spdMultiplier *= multiplier;
   }
 
@@ -238,6 +229,12 @@ public class PokeSal {
 
     if (expiring != null) {
       expiring.forEach(effect -> effect.removeEffect(this));
+    }
+  }
+
+  private static void validateMultiplier(double multiplier) {
+    if (multiplier < 0) {
+      throw new IllegalArgumentException("o multiplicador nao pode ser negativo");
     }
   }
 
