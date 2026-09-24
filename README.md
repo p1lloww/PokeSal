@@ -80,9 +80,11 @@ br.edu.ucsal.tqs.pokesal
 2. `ChooseInitialPokeSalUseCase` é executado duas vezes, uma por treinador, capturando
    nome e PokeSal inicial via `BattleCli`.
 3. Um `Battleground` é sorteado para a batalha.
-4. `RunBattleUseCase` conduz o loop de turnos: renderiza o estado atual, captura a
-   ação de cada treinador (atacar ou usar item), executa o `Turn` correspondente e
-   verifica se há um vencedor, repetindo até que a batalha termine.
+4. `RunBattleUseCase` dispara a entrada em campo dos dois PokeSal (passivas como
+   Intimidate e Rain Dish) e conduz o loop de turnos: renderiza o estado atual, captura a
+   ação de cada treinador (atacar ou usar item), executa o `Turn` correspondente, aplica
+   os efeitos de fim de turno (status, passiva, terreno e expiração de efeitos
+   temporários) e verifica se há um vencedor, repetindo até que a batalha termine.
 
 ## Documentação do projeto
 

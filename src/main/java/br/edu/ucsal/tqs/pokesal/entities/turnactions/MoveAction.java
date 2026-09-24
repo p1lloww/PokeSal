@@ -8,7 +8,8 @@ import java.util.Random;
 
 /**
  * Ação de turno que representa o uso de um golpe (Move) por um PokeSal, aplicando
- * dano ao oponente e, com a chance definida pelo golpe, uma condição de status.
+ * dano ao oponente, avisando a passiva do oponente sobre o dano recebido e, com a chance
+ * definida pelo golpe, aplicando uma condição de status.
  */
 public class MoveAction implements TurnAction {
 
@@ -34,8 +35,10 @@ public class MoveAction implements TurnAction {
   public void execute(PokeSal actor, PokeSal opponent, Battleground battleground) {
     double damage = DamageCalculatorService.calculateDamage(actor, opponent, move, battleground);
     opponent.takeDamage(damage);
+    opponent.getPassive().onDamageTaken(opponent, actor, damage);
 
-    if (move.statusEffect() != null && RANDOM.nextDouble() < move.statusChance()) {
+    if (move.statusEffect() != null && opponent.getHp() > 0
+        && RANDOM.nextDouble() < move.statusChance()) {
       opponent.applyStatus(move.statusEffect());
     }
   }
