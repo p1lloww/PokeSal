@@ -177,8 +177,8 @@ public class BattleCli {
   }
 
   /**
-   * Renderiza o estado atual da batalha no console, mostrando o terreno ativo e o status de HP de
-   * cada PokeSal.
+   * Renderiza o estado atual da batalha no console, mostrando o terreno ativo e, para cada
+   * treinador, seu nome seguido do status de HP do seu PokeSal.
    *
    * @param battle a batalha cujo estado será exibido
    */
@@ -186,13 +186,16 @@ public class BattleCli {
     System.out.println("=".repeat(SEPARATOR_WIDTH));
     System.out.println("Terreno: " + battle.getBattleground().getName());
     System.out.println("-".repeat(SEPARATOR_WIDTH));
-    renderPokeSalStatus(battle.getTrainerA().getPokeSal());
+    renderTrainerStatus(battle.getTrainerA());
     System.out.println();
-    renderPokeSalStatus(battle.getTrainerB().getPokeSal());
+    renderTrainerStatus(battle.getTrainerB());
     System.out.println("=".repeat(SEPARATOR_WIDTH));
   }
 
-  private void renderPokeSalStatus(PokeSal pokeSal) {
+  private void renderTrainerStatus(Trainer trainer) {
+    PokeSal pokeSal = trainer.getPokeSal();
+
+    System.out.println("Treinador: " + trainer.getName());
     System.out.println(pokeSal.getName() + " (" + pokeSal.getElementType() + ")");
     System.out.println("HP: " + pokeSal.getHp() + "/" + pokeSal.getMaxHp());
     if (pokeSal.getStatusCondition() != null) {
