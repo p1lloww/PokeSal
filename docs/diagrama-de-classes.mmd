@@ -1,5 +1,5 @@
 ---
-title: Diagrama de Classes - Sistema de Batalhas PokeSal
+title: Diagrama de Classes - Sistema de Batalhas PokeSal (Fase 03)
 config:
   theme: base
   themeVariables:
@@ -91,6 +91,7 @@ classDiagram
     power: int
     statusEffect: StatusCondition
     statusChance: double
+    accuracy: int
   }
 
   class ElementType {
@@ -114,7 +115,18 @@ classDiagram
 
   class DamageCalculatorService {
     <<service>>
-    +calculateDamage(attacker: PokeSal, defender: PokeSal, move: Move, battleground: Battleground)$ double
+    -randomGenerator: RandomGenerator
+    -battlegroundService: BattlegroundService
+    +calculateDamage(attacker: PokeSal, defender: PokeSal, move: Move, battleground: Battleground) DamageResult
+  }
+
+  class DamageResult {
+    <<record>>
+    damage: double
+    hit: boolean
+    critical: boolean
+    battlegroundApplied: boolean
+    +miss()$ DamageResult
   }
 
   %% ---------- Turnos ----------
@@ -137,6 +149,9 @@ classDiagram
 
   class MoveAction {
     -move: Move
+    -damageCalculatorService: DamageCalculatorService
+    -randomGenerator: RandomGenerator
+    -battleLogger: BattleLogger
     +execute(actor: PokeSal, opponent: PokeSal, battleground: Battleground) void
   }
 
@@ -144,7 +159,102 @@ classDiagram
     -item: Item
     -trainer: Trainer
     -currentTurnNumber: int
+    -battleLogger: BattleLogger
     +execute(actor: PokeSal, opponent: PokeSal, battleground: Battleground) void
+  }
+
+  class TurnActionFactory {
+    -damageCalculatorService: DamageCalculatorService
+    -randomGenerator: RandomGenerator
+    -battleLogger: BattleLogger
+    +createMoveAction(move: Move) MoveAction
+    +createItemAction(item: Item, trainer: Trainer, currentTurnNumber: int) ItemAction
+  }
+
+  %% ---------- Casos de uso ----------
+  class RunBattleUseCase {
+    -battleCli: BattleCli
+    -battlegroundService: BattlegroundService
+    -resultRepository: ResultRepository
+    -battleLogger: BattleLogger
+    +execute(battle: Battle) void
+    -saveResult(battle: Battle) void
+    -endTurn(self: PokeSal, opponent: PokeSal, battleground: Battleground, turnNumber: int) void
+  }
+
+  class BattleResult {
+    <<record>>
+    winner: Trainer
+    loser: Trainer
+    turnCount: int
+    winnerPokeSal: String
+    loserPokeSal: String
+    +from(battle: Battle)$ BattleResult
+  }
+
+  %% ---------- Colaboradores injetados (Fase 03) ----------
+  class RandomGenerator {
+    <<interface>>
+    +nextInt(bound: int) int
+    +nextDouble() double
+  }
+
+  class DefaultRandomGenerator {
+    -random: Random
+    +nextInt(bound: int) int
+    +nextDouble() double
+  }
+
+  class BattlegroundService {
+    <<interface>>
+    +isActive(battleground: Battleground) boolean
+  }
+
+  class DefaultBattlegroundService {
+    -clock: Clock
+    -weatherProvider: WeatherProvider
+    +isActive(battleground: Battleground) boolean
+  }
+
+  class WeatherProvider {
+    <<interface>>
+    +getCurrentWeather() Weather
+  }
+
+  class RandomWeatherProvider {
+    -weather: Weather
+    +getCurrentWeather() Weather
+  }
+
+  class Clock {
+    <<java.time>>
+  }
+
+  class ResultRepository {
+    <<interface>>
+    +save(result: BattleResult) void
+    +findAll() List~BattleResult~
+  }
+
+  class InMemoryResultRepository {
+    -results: List~BattleResult~
+    +save(result: BattleResult) void
+    +findAll() List~BattleResult~
+  }
+
+  class BattleLogger {
+    <<interface>>
+    +logAttack(attacker: PokeSal, defender: PokeSal, move: Move) void
+    +logDamage(defender: PokeSal, damage: double, critical: boolean) void
+    +logMiss(attacker: PokeSal, move: Move) void
+    +logStatusEffect(target: PokeSal, status: StatusCondition) void
+    +logBattlegroundEffect(battleground: Battleground, target: PokeSal) void
+    +logItemUse(target: PokeSal, item: Item) void
+    +logError(message: String, cause: Exception) void
+  }
+
+  class ConsoleBattleLogger {
+    -out: PrintStream
   }
 
   %% ---------- Itens e efeitos ----------
@@ -268,14 +378,31 @@ classDiagram
     +getDescription() String
     +onTurnEnd(activePokeSal: PokeSal) void
     +modifyDamage(baseDamage: double, attackType: ElementType) double
+    +isActive(conditions: BattlegroundConditions) boolean
   }
 
   class HotAsphalt {
     +modifyDamage(baseDamage: double, attackType: ElementType) double
+    +isActive(conditions: BattlegroundConditions) boolean
   }
 
   class WaterPuddle {
     +modifyDamage(baseDamage: double, attackType: ElementType) double
+    +isActive(conditions: BattlegroundConditions) boolean
+  }
+
+  class BattlegroundConditions {
+    <<record>>
+    time: LocalTime
+    weather: Weather
+    +isDaytime() boolean
+  }
+
+  class Weather {
+    <<enumeration>>
+    SUNNY
+    CLOUDY
+    RAINY
   }
 
   class CentralFlowerbed {
@@ -306,8 +433,34 @@ classDiagram
   MoveAction --> Move
   ItemAction --> Item
   ItemAction --> Trainer
-  MoveAction ..> DamageCalculatorService
+  MoveAction --> DamageCalculatorService
+  MoveAction --> RandomGenerator
+  MoveAction --> BattleLogger
+  ItemAction --> BattleLogger
   DamageCalculatorService ..> TypeChart
+  DamageCalculatorService --> RandomGenerator
+  DamageCalculatorService --> BattlegroundService
+  DamageCalculatorService ..> DamageResult : cria
+  TurnActionFactory ..> MoveAction : cria
+  TurnActionFactory ..> ItemAction : cria
+
+  RunBattleUseCase ..> Battle : conduz
+  RunBattleUseCase --> BattlegroundService
+  RunBattleUseCase --> ResultRepository
+  RunBattleUseCase --> BattleLogger
+  RunBattleUseCase ..> BattleResult : cria
+  BattleResult --> Trainer
+
+  RandomGenerator <|.. DefaultRandomGenerator
+  BattlegroundService <|.. DefaultBattlegroundService
+  DefaultBattlegroundService --> Clock
+  DefaultBattlegroundService --> WeatherProvider
+  DefaultBattlegroundService ..> BattlegroundConditions : cria
+  WeatherProvider <|.. RandomWeatherProvider
+  RandomWeatherProvider ..> RandomGenerator : sorteio
+  ResultRepository <|.. InMemoryResultRepository
+  InMemoryResultRepository o-- BattleResult
+  BattleLogger <|.. ConsoleBattleLogger
 
   Effect <|.. HealEffect
   Effect <|.. SpeedBuffEffect
@@ -334,3 +487,13 @@ classDiagram
   Battleground <|.. HotAsphalt
   Battleground <|.. WaterPuddle
   Battleground <|.. CentralFlowerbed
+  Battleground ..> BattlegroundConditions
+  BattlegroundConditions --> Weather
+
+  %% ---------- Destaque: novidades da Fase 03 ----------
+  classDef novaInterface fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  classDef novaClasse fill:#E3F2FD,stroke:#0D47A1,stroke-width:2px
+  class RandomGenerator,BattlegroundService,WeatherProvider,ResultRepository,BattleLogger novaInterface
+  class DefaultRandomGenerator,DefaultBattlegroundService,RandomWeatherProvider,InMemoryResultRepository,ConsoleBattleLogger,BattleResult,DamageResult,BattlegroundConditions,Weather,TurnActionFactory novaClasse
+
+  note "Verde: interfaces novas da Fase 03. Azul: implementações e classes de apoio novas. Laranja: classes existentes."
