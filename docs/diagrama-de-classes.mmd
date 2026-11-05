@@ -491,9 +491,20 @@ classDiagram
   BattlegroundConditions --> Weather
 
   %% ---------- Destaque: novidades da Fase 03 ----------
-  classDef novaInterface fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
-  classDef novaClasse fill:#E3F2FD,stroke:#0D47A1,stroke-width:2px
-  class RandomGenerator,BattlegroundService,WeatherProvider,ResultRepository,BattleLogger novaInterface
-  class DefaultRandomGenerator,DefaultBattlegroundService,RandomWeatherProvider,InMemoryResultRepository,ConsoleBattleLogger,BattleResult,DamageResult,BattlegroundConditions,Weather,TurnActionFactory novaClasse
+  style RandomGenerator fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  style BattlegroundService fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  style WeatherProvider fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  style ResultRepository fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  style BattleLogger fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  style DefaultRandomGenerator fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style DefaultBattlegroundService fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style RandomWeatherProvider fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style InMemoryResultRepository fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style ConsoleBattleLogger fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style BattleResult fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style DamageResult fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style BattlegroundConditions fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style Weather fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style TurnActionFactory fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
 
-  note "Verde: interfaces novas da Fase 03. Azul: implementações e classes de apoio novas. Laranja: classes existentes."
+  note "Legenda\nVerde: interfaces novas da Fase 03\nAzul: implementações e classes novas\nLaranja: classes existentes"
