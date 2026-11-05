@@ -4,8 +4,8 @@ import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.fire.HotAsphalt;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.grass.CentralFlowerbed;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.water.WaterPuddle;
+import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Catálogo dos terrenos disponíveis, com suporte a sorteio de um terreno aleatório para uma nova
@@ -13,20 +13,19 @@ import java.util.Random;
  */
 public final class BattlegroundCatalog {
 
-  private static final Random RANDOM = new Random();
-
   private BattlegroundCatalog() {
   }
 
   /**
    * Sorteia e retorna um terreno aleatório entre os disponíveis.
    *
+   * @param randomGenerator o gerador usado no sorteio
    * @return um novo Battleground sorteado
    */
-  public static Battleground randomBattleground() {
+  public static Battleground randomBattleground(RandomGenerator randomGenerator) {
     List<Battleground> options = List.of(
         new HotAsphalt(), new WaterPuddle(), new CentralFlowerbed());
 
-    return options.get(RANDOM.nextInt(options.size()));
+    return options.get(randomGenerator.nextInt(options.size()));
   }
 }

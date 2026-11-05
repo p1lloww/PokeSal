@@ -7,9 +7,8 @@ import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 import br.edu.ucsal.tqs.pokesal.entities.Trainer;
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.ItemCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.PokeSalCatalog;
-import br.edu.ucsal.tqs.pokesal.entities.turnactions.ItemAction;
-import br.edu.ucsal.tqs.pokesal.entities.turnactions.MoveAction;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnAction;
+import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnActionFactory;
 import java.util.List;
 import java.util.Scanner;
 import java.util.function.Supplier;
@@ -24,14 +23,18 @@ public class BattleCli {
   private static final int SEPARATOR_WIDTH = 50;
 
   private final Scanner scanner;
+  private final TurnActionFactory turnActionFactory;
 
   /**
-   * Cria uma nova CLI de batalha usando o Scanner informado para captura de input.
+   * Cria uma nova CLI de batalha usando o Scanner informado para captura de input e a fábrica
+   * informada para criar as ações escolhidas pelo jogador.
    *
-   * @param scanner o Scanner usado para ler a entrada do usuário
+   * @param scanner           o Scanner usado para ler a entrada do usuário
+   * @param turnActionFactory a fábrica das ações de turno
    */
-  public BattleCli(Scanner scanner) {
+  public BattleCli(Scanner scanner, TurnActionFactory turnActionFactory) {
     this.scanner = scanner;
+    this.turnActionFactory = turnActionFactory;
   }
 
   /**
@@ -126,11 +129,11 @@ public class BattleCli {
 
     if (choice == 1) {
       Move move = promptMoveChoice(pokeSal);
-      return new MoveAction(move);
+      return turnActionFactory.createMoveAction(move);
     }
 
     Item item = promptItemChoice(backpack);
-    return new ItemAction(item, trainer, currentTurnNumber);
+    return turnActionFactory.createItemAction(item, trainer, currentTurnNumber);
   }
 
   private Move promptMoveChoice(PokeSal pokeSal) {

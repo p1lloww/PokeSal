@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.ItemCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.PokeSalCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.ItemAction;
+import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +21,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 public class TrainerTest {
   private PokeSal squirtSal;
   private Trainer trainer;
+  private final BattleLogger battleLogger = mock(BattleLogger.class);
 
   @BeforeEach
   void setUp() {
@@ -82,7 +85,7 @@ public class TrainerTest {
     trainer.addItem(potion);
     squirtSal.takeDamage(20.0);
 
-    new ItemAction(potion, trainer, 1).execute(squirtSal, null, null);
+    new ItemAction(potion, trainer, 1, battleLogger).execute(squirtSal, null, null);
 
     assertEquals(32, squirtSal.getHp());
     assertFalse(trainer.getBackpack().contains(potion));
@@ -94,7 +97,7 @@ public class TrainerTest {
     Item potion = ItemCatalog.createPotion();
     trainer.addItem(potion);
     squirtSal.takeDamage(30.0);
-    ItemAction action = new ItemAction(potion, trainer, 1);
+    ItemAction action = new ItemAction(potion, trainer, 1, battleLogger);
 
     action.execute(squirtSal, null, null);
     int hpDepoisDoPrimeiroUso = squirtSal.getHp();
@@ -111,7 +114,7 @@ public class TrainerTest {
     Item foraDaMochila = ItemCatalog.createSuperPotion();
 
     assertThrows(IllegalStateException.class,
-        () -> new ItemAction(foraDaMochila, trainer, 1).execute(squirtSal, null, null));
+        () -> new ItemAction(foraDaMochila, trainer, 1, battleLogger).execute(squirtSal, null, null));
     assertEquals(24, squirtSal.getHp());
     assertEquals(1, trainer.getBackpack().size());
   }
@@ -124,11 +127,11 @@ public class TrainerTest {
     trainer.addItem(potion);
     trainer.addItem(superPotion);
 
-    new ItemAction(potion, trainer, 1).execute(squirtSal, null, null);
-    new ItemAction(superPotion, trainer, 2).execute(squirtSal, null, null);
+    new ItemAction(potion, trainer, 1, battleLogger).execute(squirtSal, null, null);
+    new ItemAction(superPotion, trainer, 2, battleLogger).execute(squirtSal, null, null);
 
     assertTrue(trainer.getBackpack().isEmpty());
     assertThrows(IllegalStateException.class,
-        () -> new ItemAction(potion, trainer, 3).execute(squirtSal, null, null));
+        () -> new ItemAction(potion, trainer, 3, battleLogger).execute(squirtSal, null, null));
   }
 }
