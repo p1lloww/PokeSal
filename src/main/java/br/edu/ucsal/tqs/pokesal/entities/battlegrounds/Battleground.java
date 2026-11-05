@@ -47,4 +47,15 @@ public interface Battleground {
   default double modifyDamage(double baseDamage, ElementType attackType) {
     return baseDamage;
   }
+
+  /**
+   * Indica se o efeito deste terreno está ativo nas condições de clima e horário informadas. Por
+   * padrão, o terreno está sempre ativo.
+   *
+   * @param conditions as condições atuais de clima e horário
+   * @return true se o efeito deste terreno deve ser aplicado; false caso contrário
+   */
+  default boolean isActive(BattlegroundConditions conditions) {
+    return true;
+  }
 }

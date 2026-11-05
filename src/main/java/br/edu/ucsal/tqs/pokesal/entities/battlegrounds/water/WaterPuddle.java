@@ -2,10 +2,13 @@ package br.edu.ucsal.tqs.pokesal.entities.battlegrounds.water;
 
 import br.edu.ucsal.tqs.pokesal.entities.ElementType;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.BattlegroundConditions;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Weather;
 
 /**
  * Terreno que representa uma poça de chuva no estacionamento da UCSal, aumentando o dano de golpes
- * do tipo Água em 10%.
+ * do tipo Água em 10%. Com sol forte a poça seca, então o efeito fica desativado quando o clima
+ * está ensolarado.
  */
 public class WaterPuddle implements Battleground {
 
@@ -18,7 +21,7 @@ public class WaterPuddle implements Battleground {
 
   @Override
   public String getDescription() {
-    return "Aumenta o dano de golpes do tipo Água em 10%.";
+    return "Aumenta o dano de golpes do tipo Água em 10%. Inativo com sol.";
   }
 
   @Override
@@ -28,5 +31,10 @@ public class WaterPuddle implements Battleground {
     }
 
     return baseDamage;
+  }
+
+  @Override
+  public boolean isActive(BattlegroundConditions conditions) {
+    return conditions.weather() != Weather.SUNNY;
   }
 }
