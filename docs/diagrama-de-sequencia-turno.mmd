@@ -1,0 +1,101 @@
+---
+title: Diagrama de Sequência - Turno completo de batalha
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#FFE0B2"
+    primaryBorderColor: "#333333"
+    primaryTextColor: "#111111"
+    lineColor: "#333333"
+    secondaryColor: "#FFE0B2"
+    tertiaryColor: "#FFFFFF"
+    noteBkgColor: "#FFF9C4"
+    noteBorderColor: "#333333"
+    fontFamily: "Helvetica, Arial, sans-serif"
+---
+sequenceDiagram
+  autonumber
+  participant UC as RunBattleUseCase
+  participant CLI as BattleCli
+  participant B as Battle
+  participant T as Turn
+  participant MA as MoveAction
+  participant IA as ItemAction
+  participant DC as DamageCalculatorService
+  participant RG as «interface»<br/>RandomGenerator
+  participant BS as «interface»<br/>BattlegroundService
+  participant BG as Battleground
+  participant DEF as PokeSal (defensor)
+  participant LOG as «interface»<br/>BattleLogger
+
+  UC->>CLI: renderBattleState(battle)
+  UC->>CLI: promptAction(trainerA, turnNumber)
+  CLI-->>UC: action1
+  UC->>CLI: promptAction(trainerB, turnNumber)
+  CLI-->>UC: action2
+  UC->>T: new Turn(turnNumber)
+  UC->>T: execute(pokeSalA, pokeSalB, action1, action2, battleground)
+  T->>T: decide a ordem pelo SPD (empate: pokeSal1 primeiro)
+
+  loop Para cada ator, na ordem definida (o segundo só age se ainda tiver HP)
+    alt ação de ataque
+      T->>MA: execute(actor, opponent, battleground)
+      MA->>LOG: logAttack(actor, opponent, move)
+      MA->>DC: calculateDamage(actor, opponent, move, battleground)
+      DC->>RG: nextInt(100)
+      RG-->>DC: sorteio de precisão
+      alt sorteio >= accuracy (golpe errou)
+        DC-->>MA: DamageResult.miss()
+        MA->>LOG: logMiss(actor, move)
+      else golpe acertou
+        DC->>DC: dano base x multiplicador de tipo
+        DC->>BS: isActive(battleground)
+        Note over BS: consulta Clock (horário) e<br/>WeatherProvider (clima)
+        BS->>BG: isActive(conditions)
+        BG-->>BS: true / false
+        BS-->>DC: true / false
+        opt terreno ativo
+          DC->>BG: modifyDamage(damage, move.type)
+          BG-->>DC: dano modificado
+        end
+        DC->>DC: dano x passive.onAttack(...)
+        DC->>RG: nextDouble()
+        RG-->>DC: sorteio de crítico
+        opt sorteio < 0.0625
+          DC->>DC: dano x 1.5
+        end
+        DC-->>MA: DamageResult(damage, hit, critical, battlegroundApplied)
+        MA->>DEF: takeDamage(damage)
+        MA->>LOG: logDamage(opponent, damage, critical)
+        MA->>DEF: getPassive().onDamageTaken(...)
+        opt golpe tem status, defensor de pé e sorteio < statusChance
+          MA->>RG: nextDouble()
+          MA->>DEF: applyStatus(statusEffect)
+          MA->>LOG: logStatusEffect(opponent, status)
+        end
+        opt battlegroundApplied
+          MA->>LOG: logBattlegroundEffect(battleground, opponent)
+        end
+      end
+    else ação de item
+      T->>IA: execute(actor, opponent, battleground)
+      IA->>IA: item.useItem(actor, turnNumber)
+      IA->>IA: trainer.removeItem(item)
+      IA->>LOG: logItemUse(actor, item)
+    end
+  end
+
+  UC->>B: addTurn(turn)
+  UC->>B: checkForWinner()
+
+  opt batalha ainda não terminou
+    loop Para cada PokeSal (endTurn)
+      UC->>LOG: logStatusEffect(self, status) [se tiver status]
+      UC->>BS: isActive(battleground) [se ainda tiver HP]
+      opt terreno ativo
+        UC->>BG: onTurnEnd(self)
+        UC->>LOG: logBattlegroundEffect(battleground, self) [se o HP mudou]
+      end
+    end
+    UC->>B: checkForWinner()
+  end
