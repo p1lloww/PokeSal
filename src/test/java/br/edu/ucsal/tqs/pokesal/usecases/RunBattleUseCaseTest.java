@@ -1,15 +1,22 @@
 package br.edu.ucsal.tqs.pokesal.usecases;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import br.edu.ucsal.tqs.pokesal.entities.Battle;
+import br.edu.ucsal.tqs.pokesal.entities.BattleResult;
 import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
 import br.edu.ucsal.tqs.pokesal.entities.Trainer;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
@@ -30,9 +37,11 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -273,5 +282,63 @@ public class RunBattleUseCaseTest {
 
     verify(battleLogger, never()).logStatusDamage(any(), any(), anyInt());
     verify(battleLogger, never()).logStatusEffect(any(), any());
+  }
+
+  @Test
+  @DisplayName("Resultado salvo ao fim da batalha deve trazer vencedor, perdedor e turnos")
+  void testResultadoSalvoAoFimDaBatalha() {
+    Trainer trainerA = new Trainer("A", PokeSalCatalog.createCharSal());
+    Trainer trainerB = new Trainer("B", PokeSalCatalog.createSquirtSal());
+    when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NADA, NOCAUTE);
+    when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
+    Battle battle = criarBatalha(trainerA, trainerB, new HotAsphalt());
+    ArgumentCaptor<BattleResult> resultado = ArgumentCaptor.forClass(BattleResult.class);
+
+    useCase().execute(battle);
+
+    verify(resultRepository, times(1)).save(resultado.capture());
+    assertSame(trainerA, resultado.getValue().winner());
+    assertSame(trainerB, resultado.getValue().loser());
+    assertEquals(2, resultado.getValue().turnCount());
+    assertEquals("CharSal", resultado.getValue().winnerPokeSal());
+    assertEquals("SquirtSal", resultado.getValue().loserPokeSal());
+    verify(battleCli, atLeastOnce()).renderBattleState(battle);
+  }
+
+  @Test
+  @DisplayName("Falha no repositorio deve ser registrada sem invalidar o vencedor da batalha")
+  void testFalhaNoRepositorioNaoInvalidaBatalha() {
+    Trainer trainerA = new Trainer("A", PokeSalCatalog.createCharSal());
+    Trainer trainerB = new Trainer("B", PokeSalCatalog.createSquirtSal());
+    when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NOCAUTE);
+    when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
+    IllegalStateException falha = new IllegalStateException("banco indisponível");
+    doThrow(falha).when(resultRepository).save(any(BattleResult.class));
+    Battle battle = criarBatalha(trainerA, trainerB, new HotAsphalt());
+
+    useCase().execute(battle);
+
+    assertTrue(battle.isOver());
+    assertSame(trainerA, battle.getWinner());
+    verify(battleLogger).logError("Não foi possível salvar o resultado da batalha", falha);
+    verify(battleCli).announceWinner(trainerA);
+  }
+
+  @Test
+  @DisplayName("Repositorio nao deve ser chamado se a batalha for interrompida antes do fim")
+  void testRepositorioNaoChamadoSeBatalhaNaoTerminou() {
+    Trainer trainerA = new Trainer("A", PokeSalCatalog.createCharSal());
+    Trainer trainerB = new Trainer("B", PokeSalCatalog.createSquirtSal());
+    // No segundo turno a entrada do jogador acaba e a CLI lança exceção, interrompendo a batalha.
+    when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NADA)
+        .thenThrow(new NoSuchElementException("entrada encerrada"));
+    when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
+    Battle battle = criarBatalha(trainerA, trainerB, new HotAsphalt());
+
+    assertThrows(NoSuchElementException.class, () -> useCase().execute(battle));
+
+    assertFalse(battle.isOver());
+    verify(resultRepository, never()).save(any());
+    verify(battleCli, never()).announceWinner(any());
   }
 }
