@@ -110,7 +110,7 @@
           <configLocation>checkstyle.xml</configLocation>
           <consoleOutput>true</consoleOutput>
           <violationSeverity>warning</violationSeverity>
-          <failOnViolation>false</failOnViolation>
+          <failOnViolation>true</failOnViolation>
         </configuration>
       </plugin>
     </plugins>

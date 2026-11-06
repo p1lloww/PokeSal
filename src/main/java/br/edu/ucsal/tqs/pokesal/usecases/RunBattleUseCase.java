@@ -38,7 +38,7 @@ public class RunBattleUseCase {
   /** Fração do HP máximo abaixo da qual o HP do PokeSal é considerado crítico. */
   public static final double CRITICAL_HP_RATIO = 0.25;
 
-  private static final TurnAction SKIPPED_ACTION = (actor, opponent, battleground) -> { };
+  private static final TurnAction SKIPPED_ACTION = (actor, opponent, battleground) -> {};
 
   private final BattleCli battleCli;
   private final BattlegroundService battlegroundService;
