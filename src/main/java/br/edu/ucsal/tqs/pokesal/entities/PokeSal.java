@@ -232,6 +232,20 @@ public class PokeSal {
     }
   }
 
+  /**
+   * Restaura o PokeSal para uma nova batalha: HP cheio, sem condição de status, sem buffs ou
+   * debuffs e sem efeitos temporários pendentes. A passiva também volta ao estado inicial.
+   */
+  public void restore() {
+    hp = maxHp;
+    statusCondition = null;
+    atkMultiplier = 1.0;
+    defMultiplier = 1.0;
+    spdMultiplier = 1.0;
+    activeEffects.clear();
+    passive.reset();
+  }
+
   private static void validateMultiplier(double multiplier) {
     if (multiplier < 0) {
       throw new IllegalArgumentException("o multiplicador nao pode ser negativo");

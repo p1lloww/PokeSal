@@ -282,6 +282,19 @@ public class PassiveTest {
   }
 
   @Test
+  @DisplayName("Solar Power nao deve cobrar HP depois de ser reiniciada")
+  void solarPowerNaoCobraHpDepoisDoReset() {
+    PokeSal charSal = PokeSalCatalog.createCharSal();
+    SolarPower solarPower = new SolarPower();
+
+    solarPower.onAttack(charSal, new HotAsphalt());
+    solarPower.reset();
+    solarPower.onTurnEnd(charSal);
+
+    assertEquals(39, charSal.getHp());
+  }
+
+  @Test
   void solarPowerNaoCobraHpSemTerAtacado() {
     PokeSal charSal = PokeSalCatalog.createCharSal();
 

@@ -76,4 +76,11 @@ public interface Passive {
   default boolean preventsStatusApplication(PokeSal self) {
     return false;
   }
+
+  /**
+   * Volta a passiva ao estado inicial, como se o PokeSal ainda não tivesse batalhado. Usado antes
+   * de cada batalha de um torneio, quando o PokeSal é restaurado.
+   */
+  default void reset() {
+  }
 }
