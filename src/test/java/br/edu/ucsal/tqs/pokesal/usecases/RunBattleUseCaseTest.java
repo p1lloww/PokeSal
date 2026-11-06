@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,7 @@ import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.fire.HotAsphalt;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.grass.CentralFlowerbed;
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.PokeSalCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.effects.SpeedBuffEffect;
+import br.edu.ucsal.tqs.pokesal.entities.statusconditions.Paralyzed;
 import br.edu.ucsal.tqs.pokesal.entities.statusconditions.Poison;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnAction;
 import br.edu.ucsal.tqs.pokesal.io.BattleCli;
@@ -215,5 +217,50 @@ public class RunBattleUseCaseTest {
 
     assertEquals(1, battle.getTurns().size());
     assertEquals(trainerA, battle.getWinner());
+  }
+
+  @Test
+  @DisplayName("Inicio da batalha deve ser registrado com os dois treinadores")
+  void inicioDaBatalhaEhRegistrado() {
+    Trainer trainerA = new Trainer("A", PokeSalCatalog.createCharSal());
+    Trainer trainerB = new Trainer("B", PokeSalCatalog.createSquirtSal());
+    when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NOCAUTE);
+    when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
+
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+
+    verify(battleLogger).logBattleStart(trainerA, trainerB);
+  }
+
+  @Test
+  @DisplayName("Dano do veneno deve ser registrado com o HP perdido no fim do turno")
+  void danoDoVenenoEhRegistrado() {
+    Trainer trainerA = new Trainer("A", PokeSalCatalog.createCharSal());
+    Trainer trainerB = new Trainer("B", PokeSalCatalog.createSquirtSal());
+    PokeSal squirtSal = trainerB.getPokeSal();
+    Poison veneno = new Poison();
+    squirtSal.applyStatus(veneno);
+    when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NADA, NOCAUTE);
+    when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
+
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+
+    verify(battleLogger, times(1)).logStatusDamage(squirtSal, veneno, squirtSal.getMaxHp() - 38);
+    verify(battleLogger, never()).logStatusEffect(any(), any());
+  }
+
+  @Test
+  @DisplayName("Status que nao causa dano nao deve ser registrado no fim do turno")
+  void statusSemDanoNaoEhRegistradoNoFimDoTurno() {
+    Trainer trainerA = new Trainer("A", PokeSalCatalog.createCharSal());
+    Trainer trainerB = new Trainer("B", PokeSalCatalog.createSquirtSal());
+    trainerB.getPokeSal().applyStatus(new Paralyzed());
+    when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NADA, NOCAUTE);
+    when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
+
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+
+    verify(battleLogger, never()).logStatusDamage(any(), any(), anyInt());
+    verify(battleLogger, never()).logStatusEffect(any(), any());
   }
 }

@@ -3,15 +3,25 @@ package br.edu.ucsal.tqs.pokesal.services.log;
 import br.edu.ucsal.tqs.pokesal.entities.Item;
 import br.edu.ucsal.tqs.pokesal.entities.Move;
 import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.Trainer;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
 import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
 
 /**
  * Registro dos eventos que acontecem durante uma batalha. Dentro de uma ação de ataque, os eventos
  * são enviados nesta ordem: ataque, dano (ou erro), efeito de status e efeito de terreno. O uso de
- * item é registrado pela ação de item.
+ * item não faz parte dessa sequência: ele é registrado pela ação de item, no momento em que o item
+ * é usado.
  */
 public interface BattleLogger {
+
+  /**
+   * Registra o início de uma batalha entre os dois treinadores.
+   *
+   * @param trainerA o primeiro treinador
+   * @param trainerB o segundo treinador
+   */
+  void logBattleStart(Trainer trainerA, Trainer trainerB);
 
   /**
    * Registra que um PokeSal usou um golpe contra o adversário.
@@ -40,12 +50,21 @@ public interface BattleLogger {
   void logMiss(PokeSal attacker, Move move);
 
   /**
-   * Registra uma condição de status aplicada ou acionada em um PokeSal.
+   * Registra que uma condição de status foi aplicada a um PokeSal.
    *
-   * @param target o PokeSal afetado
-   * @param status a condição de status
+   * @param target o PokeSal que recebeu a condição
+   * @param status a condição de status aplicada
    */
   void logStatusEffect(PokeSal target, StatusCondition status);
+
+  /**
+   * Registra o HP perdido por um PokeSal por causa da sua condição de status no fim do turno.
+   *
+   * @param target o PokeSal que perdeu HP
+   * @param status a condição de status que causou a perda
+   * @param hpLost a quantidade de HP perdida
+   */
+  void logStatusDamage(PokeSal target, StatusCondition status, int hpLost);
 
   /**
    * Registra que o efeito do terreno foi aplicado.

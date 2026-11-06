@@ -32,7 +32,8 @@ public class RunBattleUseCase {
    * @param battleCli           a CLI usada para interação com os jogadores
    * @param battlegroundService o serviço que informa se o efeito do terreno está ativo
    * @param resultRepository    o repositório onde o resultado da batalha é salvo
-   * @param battleLogger        o registro que recebe os eventos de fim de turno e os erros
+   * @param battleLogger        o registro que recebe o início da batalha, os eventos de fim de
+   *                            turno e os erros
    * @throws NullPointerException se algum dos argumentos for nulo
    */
   public RunBattleUseCase(BattleCli battleCli, BattlegroundService battlegroundService,
@@ -62,6 +63,8 @@ public class RunBattleUseCase {
    * @param battle a batalha a ser conduzida
    */
   public void execute(Battle battle) {
+    battleLogger.logBattleStart(battle.getTrainerA(), battle.getTrainerB());
+
     PokeSal pokeSalA = battle.getTrainerA().getPokeSal();
     PokeSal pokeSalB = battle.getTrainerB().getPokeSal();
     Battleground battleground = battle.getBattleground();
@@ -116,8 +119,8 @@ public class RunBattleUseCase {
   /**
    * Aplica os efeitos de fim de turno ao PokeSal informado: dano da condição de status, efeito da
    * passiva, efeito do terreno (apenas se o PokeSal ainda estiver de pé e o terreno estiver ativo)
-   * e expiração dos efeitos temporários agendados para este turno. Caso o PokeSal perca HP nesta etapa, a passiva é avisada
-   * do dano recebido.
+   * e expiração dos efeitos temporários agendados para este turno. Caso o PokeSal perca HP nesta
+   * etapa, a passiva é avisada do dano recebido.
    *
    * @param self         o PokeSal que está encerrando o turno
    * @param opponent     o PokeSal adversário
@@ -131,7 +134,10 @@ public class RunBattleUseCase {
     StatusCondition status = self.getStatusCondition();
     if (status != null) {
       status.onTurnEnd(self);
-      battleLogger.logStatusEffect(self, status);
+      int hpLostToStatus = hpBefore - self.getHp();
+      if (hpLostToStatus > 0) {
+        battleLogger.logStatusDamage(self, status, hpLostToStatus);
+      }
     }
     self.getPassive().onTurnEnd(self);
 
