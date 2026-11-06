@@ -5,8 +5,8 @@ import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
 /**
  * Representa um golpe que um PokeSal pode executar em batalha, com tipo elemental, poder base,
  * precisão e, opcionalmente, uma condição de status que pode ser aplicada ao defensor com uma
- * determinada chance. É um dado imutável: instâncias diferentes de Move representam golpes diferentes apenas
- * por seus valores, sem comportamento próprio distinto entre elas.
+ * determinada chance. É um dado imutável: instâncias diferentes de Move representam golpes
+ * diferentes apenas por seus valores, sem comportamento próprio distinto entre elas.
  *
  * @param name         o nome do golpe
  * @param description  a descrição do golpe

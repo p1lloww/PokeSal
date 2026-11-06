@@ -43,7 +43,6 @@ public final class BattleRunner {
     BattlegroundService battlegroundService = new DefaultBattlegroundService(
         Clock.systemDefaultZone(), new RandomWeatherProvider(randomGenerator));
     BattleLogger battleLogger = new ConsoleBattleLogger(System.out);
-    ResultRepository resultRepository = new InMemoryResultRepository();
 
     DamageCalculatorService damageCalculatorService =
         new DamageCalculatorService(randomGenerator, battlegroundService);
@@ -68,6 +67,7 @@ public final class BattleRunner {
     Battle battle = new Battle(trainerA, trainerB,
         BattlegroundCatalog.randomBattleground(randomGenerator));
 
+    ResultRepository resultRepository = new InMemoryResultRepository();
     RunBattleUseCase runBattleUseCase =
         new RunBattleUseCase(battleCli, battlegroundService, resultRepository, battleLogger);
     runBattleUseCase.execute(battle);
