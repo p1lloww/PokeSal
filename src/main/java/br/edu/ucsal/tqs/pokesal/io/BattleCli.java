@@ -214,4 +214,50 @@ public class BattleCli {
   public void announceWinner(Trainer winner) {
     System.out.println("Vencedor: " + winner.getName());
   }
+
+  /**
+   * Anuncia um confronto do torneio antes de a batalha começar.
+   *
+   * @param roundName o nome da fase do torneio, como "Semifinal"
+   * @param trainerA  o primeiro treinador do confronto
+   * @param trainerB  o segundo treinador do confronto
+   */
+  public void announceMatch(String roundName, Trainer trainerA, Trainer trainerB) {
+    System.out.println("*".repeat(SEPARATOR_WIDTH));
+    System.out.println(roundName + ": " + trainerA.getName() + " x " + trainerB.getName());
+    System.out.println("*".repeat(SEPARATOR_WIDTH));
+  }
+
+  /**
+   * Anuncia o campeão do torneio.
+   *
+   * @param champion o treinador campeão
+   */
+  public void announceChampion(Trainer champion) {
+    System.out.println("Campeão do torneio: " + champion.getName() + "!");
+  }
+
+  /**
+   * Pergunta ao jogador qual modo de jogo deseja jogar.
+   *
+   * @return 1 para batalha simples ou 2 para torneio
+   */
+  public int promptGameMode() {
+    System.out.println("Escolha o modo de jogo:");
+    System.out.println("1 - Batalha simples");
+    System.out.println("2 - Torneio");
+    return readValidChoice(2);
+  }
+
+  /**
+   * Pergunta ao jogador quantos treinadores vão participar do torneio.
+   *
+   * @return 4 ou 8
+   */
+  public int promptTournamentSize() {
+    System.out.println("Quantos treinadores vão participar do torneio?");
+    System.out.println("1 - 4 treinadores");
+    System.out.println("2 - 8 treinadores");
+    return readValidChoice(2) == 1 ? 4 : 8;
+  }
 }
