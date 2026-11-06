@@ -244,10 +244,12 @@ classDiagram
 
   class BattleLogger {
     <<interface>>
+    +logBattleStart(trainerA: Trainer, trainerB: Trainer) void
     +logAttack(attacker: PokeSal, defender: PokeSal, move: Move) void
     +logDamage(defender: PokeSal, damage: double, critical: boolean) void
     +logMiss(attacker: PokeSal, move: Move) void
     +logStatusEffect(target: PokeSal, status: StatusCondition) void
+    +logStatusDamage(target: PokeSal, status: StatusCondition, hpLost: int) void
     +logBattlegroundEffect(battleground: Battleground, target: PokeSal) void
     +logItemUse(target: PokeSal, item: Item) void
     +logError(message: String, cause: Exception) void
@@ -255,6 +257,8 @@ classDiagram
 
   class ConsoleBattleLogger {
     -out: PrintStream
+    -trainerNames: Map~PokeSal, String~
+    -label(pokeSal: PokeSal) String
   }
 
   %% ---------- Itens e efeitos ----------

@@ -90,7 +90,7 @@ sequenceDiagram
 
   opt batalha ainda não terminou
     loop Para cada PokeSal (endTurn)
-      UC->>LOG: logStatusEffect(self, status) [se tiver status]
+      UC->>LOG: logStatusDamage(self, status, hpLost) [se o status tirou HP]
       UC->>BS: isActive(battleground) [se ainda tiver HP]
       opt terreno ativo
         UC->>BG: onTurnEnd(self)
