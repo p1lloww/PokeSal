@@ -2,6 +2,10 @@ package br.edu.ucsal.tqs.pokesal.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import br.edu.ucsal.tqs.pokesal.entities.ElementType;
 import br.edu.ucsal.tqs.pokesal.entities.Move;
@@ -13,6 +17,8 @@ import br.edu.ucsal.tqs.pokesal.entities.passives.Passive;
 import br.edu.ucsal.tqs.pokesal.entities.passives.fire.Blaze;
 import br.edu.ucsal.tqs.pokesal.entities.passives.fire.SolarPower;
 import br.edu.ucsal.tqs.pokesal.entities.passives.neutral.Intimidate;
+import br.edu.ucsal.tqs.pokesal.services.battleground.BattlegroundService;
+import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +29,18 @@ public class DamageCalculatorServiceTest {
   private static final double DELTA = 0.0001;
 
   private static final Battleground TERRENO_NEUTRO = new CentralFlowerbed();
+
+  private final RandomGenerator randomGenerator = mock(RandomGenerator.class);
+  private final BattlegroundService battlegroundService = mock(BattlegroundService.class);
+  private final DamageCalculatorService service =
+      new DamageCalculatorService(randomGenerator, battlegroundService);
+
+  private DamageCalculatorService servicoSemSorte() {
+    when(randomGenerator.nextInt(anyInt())).thenReturn(0);
+    when(randomGenerator.nextDouble()).thenReturn(0.99);
+    when(battlegroundService.isActive(any())).thenReturn(true);
+    return service;
+  }
 
   private PokeSal criarPokeSal(ElementType tipo, int hp, int atk, int def, Passive passive) {
     Move tackle = new Move("Tackle", "Ataque básico.", tipo, 40);
@@ -49,8 +67,8 @@ public class DamageCalculatorServiceTest {
     PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, atk, 50, new Intimidate());
     PokeSal defensor = criarPokeSal(ElementType.FIRE, 50, 50, def, new Intimidate());
 
-    double dano = DamageCalculatorService.calculateDamage(
-        atacante, defensor, golpe(ElementType.FIRE, poder), TERRENO_NEUTRO);
+    double dano = servicoSemSorte().calculateDamage(
+        atacante, defensor, golpe(ElementType.FIRE, poder), TERRENO_NEUTRO).damage();
 
     assertEquals(esperado, dano, DELTA);
   }
@@ -61,8 +79,8 @@ public class DamageCalculatorServiceTest {
     PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Intimidate());
     PokeSal defensor = criarPokeSal(ElementType.FIRE, 10, 50, 10, new Intimidate());
 
-    double dano = DamageCalculatorService.calculateDamage(
-        atacante, defensor, golpe(ElementType.FIRE, 10), TERRENO_NEUTRO);
+    double dano = servicoSemSorte().calculateDamage(
+        atacante, defensor, golpe(ElementType.FIRE, 10), TERRENO_NEUTRO).damage();
     defensor.takeDamage(dano);
 
     assertEquals(10.0, dano, DELTA);
@@ -75,8 +93,8 @@ public class DamageCalculatorServiceTest {
     PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Intimidate());
     PokeSal defensor = criarPokeSal(ElementType.FIRE, 11, 50, 10, new Intimidate());
 
-    double dano = DamageCalculatorService.calculateDamage(
-        atacante, defensor, golpe(ElementType.FIRE, 10), TERRENO_NEUTRO);
+    double dano = servicoSemSorte().calculateDamage(
+        atacante, defensor, golpe(ElementType.FIRE, 10), TERRENO_NEUTRO).damage();
     defensor.takeDamage(dano);
 
     assertEquals(1, defensor.getHp());
@@ -88,8 +106,8 @@ public class DamageCalculatorServiceTest {
     PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 1000, 50, new Intimidate());
     PokeSal defensor = criarPokeSal(ElementType.FIRE, 10, 50, 1, new Intimidate());
 
-    double dano = DamageCalculatorService.calculateDamage(
-        atacante, defensor, golpe(ElementType.FIRE, 100), TERRENO_NEUTRO);
+    double dano = servicoSemSorte().calculateDamage(
+        atacante, defensor, golpe(ElementType.FIRE, 100), TERRENO_NEUTRO).damage();
     defensor.takeDamage(dano);
 
     assertEquals(0, defensor.getHp());
@@ -111,8 +129,8 @@ public class DamageCalculatorServiceTest {
     PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Intimidate());
     PokeSal defensor = criarPokeSal(tipoDefensor, 50, 50, 50, new Intimidate());
 
-    double dano = DamageCalculatorService.calculateDamage(
-        atacante, defensor, golpe(tipoGolpe, 50), TERRENO_NEUTRO);
+    double dano = servicoSemSorte().calculateDamage(
+        atacante, defensor, golpe(tipoGolpe, 50), TERRENO_NEUTRO).damage();
 
     assertEquals(esperado, dano, DELTA);
   }
@@ -123,8 +141,8 @@ public class DamageCalculatorServiceTest {
     PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 50, 50, new SolarPower());
     PokeSal defensor = criarPokeSal(ElementType.PLANT, 50, 50, 50, new Intimidate());
 
-    double dano = DamageCalculatorService.calculateDamage(
-        atacante, defensor, golpe(ElementType.FIRE, 50), new HotAsphalt());
+    double dano = servicoSemSorte().calculateDamage(
+        atacante, defensor, golpe(ElementType.FIRE, 50), new HotAsphalt()).damage();
 
     assertEquals(34.5, dano, DELTA);
   }
@@ -134,8 +152,8 @@ public class DamageCalculatorServiceTest {
     PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Blaze());
     PokeSal defensor = criarPokeSal(ElementType.PLANT, 50, 50, 50, new Intimidate());
 
-    double dano = DamageCalculatorService.calculateDamage(
-        atacante, defensor, golpe(ElementType.FIRE, 50), new HotAsphalt());
+    double dano = servicoSemSorte().calculateDamage(
+        atacante, defensor, golpe(ElementType.FIRE, 50), new HotAsphalt()).damage();
 
     assertEquals(23.0, dano, DELTA);
   }
@@ -147,12 +165,12 @@ public class DamageCalculatorServiceTest {
     Move move = golpe(ElementType.FIRE, 50);
 
     assertThrows(NullPointerException.class, () ->
-        DamageCalculatorService.calculateDamage(null, defensor, move, TERRENO_NEUTRO));
+        service.calculateDamage(null, defensor, move, TERRENO_NEUTRO));
     assertThrows(NullPointerException.class, () ->
-        DamageCalculatorService.calculateDamage(atacante, null, move, TERRENO_NEUTRO));
+        service.calculateDamage(atacante, null, move, TERRENO_NEUTRO));
     assertThrows(NullPointerException.class, () ->
-        DamageCalculatorService.calculateDamage(atacante, defensor, null, TERRENO_NEUTRO));
+        service.calculateDamage(atacante, defensor, null, TERRENO_NEUTRO));
     assertThrows(NullPointerException.class, () ->
-        DamageCalculatorService.calculateDamage(atacante, defensor, move, null));
+        service.calculateDamage(atacante, defensor, move, null));
   }
 }

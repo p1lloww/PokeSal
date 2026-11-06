@@ -3,9 +3,9 @@ package br.edu.ucsal.tqs.pokesal.entities;
 import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
 
 /**
- * Representa um golpe que um PokeSal pode executar em batalha, com tipo elemental, poder base e,
- * opcionalmente, uma condição de status que pode ser aplicada ao defensor com uma determinada
- * chance. É um dado imutável: instâncias diferentes de Move representam golpes diferentes apenas
+ * Representa um golpe que um PokeSal pode executar em batalha, com tipo elemental, poder base,
+ * precisão e, opcionalmente, uma condição de status que pode ser aplicada ao defensor com uma
+ * determinada chance. É um dado imutável: instâncias diferentes de Move representam golpes diferentes apenas
  * por seus valores, sem comportamento próprio distinto entre elas.
  *
  * @param name         o nome do golpe
@@ -16,6 +16,8 @@ import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
  *                     nenhum status
  * @param statusChance a chance, entre 0.0 e 1.0, de o golpe causar statusEffect ao acertar o
  *                     defensor; ignorada caso statusEffect seja nulo
+ * @param accuracy     a precisão do golpe, de 0 a 100; é a chance, em porcentagem, de o golpe
+ *                     acertar o defensor
  */
 public record Move(
     String name,
@@ -23,14 +25,18 @@ public record Move(
     ElementType type,
     int power,
     StatusCondition statusEffect,
-    double statusChance) {
+    double statusChance,
+    int accuracy) {
+
+  public static final int MAX_ACCURACY = 100;
 
   /**
    * Valida os componentes deste Move no momento da criação.
    *
    * @throws NullPointerException     se name, description ou type forem nulos
-   * @throws IllegalArgumentException se power não for maior que zero, ou se statusChance estiver
-   *                                  fora do intervalo de 0.0 a 1.0
+   * @throws IllegalArgumentException se power não for maior que zero, se statusChance estiver
+   *                                  fora do intervalo de 0.0 a 1.0, ou se accuracy estiver fora
+   *                                  do intervalo de 0 a 100
    */
   public Move {
     if (name == null) {
@@ -48,10 +54,28 @@ public record Move(
     if (statusChance < 0.0 || statusChance > 1.0) {
       throw new IllegalArgumentException("statusChance deve estar entre 0.0 e 1.0");
     }
+    if (accuracy < 0 || accuracy > MAX_ACCURACY) {
+      throw new IllegalArgumentException("accuracy deve estar entre 0 e 100");
+    }
   }
 
   /**
-   * Cria um Move sem nenhuma condição de status associada.
+   * Cria um Move com precisão máxima, que nunca erra o alvo.
+   *
+   * @param name         o nome do golpe
+   * @param description  a descrição do golpe
+   * @param type         o tipo elemental do golpe
+   * @param power        o poder base do golpe, usado no cálculo de dano
+   * @param statusEffect a condição de status que este golpe pode causar
+   * @param statusChance a chance, entre 0.0 e 1.0, de o golpe causar statusEffect
+   */
+  public Move(String name, String description, ElementType type, int power,
+      StatusCondition statusEffect, double statusChance) {
+    this(name, description, type, power, statusEffect, statusChance, MAX_ACCURACY);
+  }
+
+  /**
+   * Cria um Move sem nenhuma condição de status associada e com precisão máxima.
    *
    * @param name        o nome do golpe
    * @param description a descrição do golpe
@@ -59,6 +83,6 @@ public record Move(
    * @param power       o poder base do golpe, usado no cálculo de dano
    */
   public Move(String name, String description, ElementType type, int power) {
-    this(name, description, type, power, null, 0.0);
+    this(name, description, type, power, null, 0.0, MAX_ACCURACY);
   }
 }

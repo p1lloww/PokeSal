@@ -21,6 +21,7 @@ import java.util.List;
 public final class PokeSalCatalog {
 
   private static final double STATUS_CHANCE = 0.10;
+  private static final int STATUS_MOVE_ACCURACY = 90;
 
   private PokeSalCatalog() {
   }
@@ -34,7 +35,7 @@ public final class PokeSalCatalog {
     List<Move> moves = List.of(
         new Move("Tackle", "Um ataque físico básico.", ElementType.PLANT, 40),
         new Move("Vine Whip", "Ataca com vinhas afiadas, podendo envenenar o alvo.",
-            ElementType.PLANT, 45, new Poison(), STATUS_CHANCE));
+            ElementType.PLANT, 45, new Poison(), STATUS_CHANCE, STATUS_MOVE_ACCURACY));
 
     return new PokeSal("BulbaSal", "Um PokeSal do tipo Planta.", 45, 49, 49, 45,
         ElementType.PLANT, moves, new Overgrow());
@@ -49,7 +50,7 @@ public final class PokeSalCatalog {
     List<Move> moves = List.of(
         new Move("Scratch", "Um ataque físico básico.", ElementType.FIRE, 40),
         new Move("Ember", "Lança uma pequena chama, podendo queimar o alvo.",
-            ElementType.FIRE, 40, new Burn(), STATUS_CHANCE));
+            ElementType.FIRE, 40, new Burn(), STATUS_CHANCE, STATUS_MOVE_ACCURACY));
 
     return new PokeSal("CharSal", "Um PokeSal do tipo Fogo.", 39, 52, 43, 65,
         ElementType.FIRE, moves, new Blaze());
@@ -64,7 +65,7 @@ public final class PokeSalCatalog {
     List<Move> moves = List.of(
         new Move("Tackle", "Um ataque físico básico.", ElementType.WATER, 40),
         new Move("Water Gun", "Dispara um jato de água, podendo paralisar o alvo.",
-            ElementType.WATER, 40, new Paralyzed(), STATUS_CHANCE));
+            ElementType.WATER, 40, new Paralyzed(), STATUS_CHANCE, STATUS_MOVE_ACCURACY));
 
     return new PokeSal("SquirtSal", "Um PokeSal do tipo Água.", 44, 48, 65, 43,
         ElementType.WATER, moves, new Torrent());
@@ -79,7 +80,7 @@ public final class PokeSalCatalog {
     List<Move> moves = List.of(
         new Move("Tackle", "Um ataque físico básico.", ElementType.PLANT, 40),
         new Move("Razor Leaf", "Corta o alvo com folhas afiadas, podendo envenená-lo.",
-            ElementType.PLANT, 55, new Poison(), STATUS_CHANCE));
+            ElementType.PLANT, 55, new Poison(), STATUS_CHANCE, STATUS_MOVE_ACCURACY));
 
     return new PokeSal("ChikoSal", "Um PokeSal do tipo Planta.", 45, 49, 65, 45,
         ElementType.PLANT, moves, new LeafGuard());
@@ -94,7 +95,7 @@ public final class PokeSalCatalog {
     List<Move> moves = List.of(
         new Move("Tackle", "Um ataque físico básico.", ElementType.FIRE, 40),
         new Move("Ember", "Lança uma pequena chama, podendo queimar o alvo.",
-            ElementType.FIRE, 40, new Burn(), STATUS_CHANCE));
+            ElementType.FIRE, 40, new Burn(), STATUS_CHANCE, STATUS_MOVE_ACCURACY));
 
     return new PokeSal("CyndaSal", "Um PokeSal do tipo Fogo.", 39, 52, 43, 65,
         ElementType.FIRE, moves, new Intimidate());
@@ -109,7 +110,7 @@ public final class PokeSalCatalog {
     List<Move> moves = List.of(
         new Move("Scratch", "Um ataque físico básico.", ElementType.WATER, 40),
         new Move("Water Gun", "Dispara um jato de água, podendo paralisar o alvo.",
-            ElementType.WATER, 40, new Paralyzed(), STATUS_CHANCE));
+            ElementType.WATER, 40, new Paralyzed(), STATUS_CHANCE, STATUS_MOVE_ACCURACY));
 
     return new PokeSal("TotoSal", "Um PokeSal do tipo Água.", 50, 65, 64, 43,
         ElementType.WATER, moves, new RainDish());

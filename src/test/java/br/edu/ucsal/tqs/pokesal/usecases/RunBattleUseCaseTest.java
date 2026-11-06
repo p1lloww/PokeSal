@@ -1,6 +1,7 @@
 package br.edu.ucsal.tqs.pokesal.usecases;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -18,6 +19,9 @@ import br.edu.ucsal.tqs.pokesal.entities.effects.SpeedBuffEffect;
 import br.edu.ucsal.tqs.pokesal.entities.statusconditions.Poison;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnAction;
 import br.edu.ucsal.tqs.pokesal.io.BattleCli;
+import br.edu.ucsal.tqs.pokesal.repositories.ResultRepository;
+import br.edu.ucsal.tqs.pokesal.services.battleground.BattlegroundService;
+import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -31,12 +35,25 @@ public class RunBattleUseCaseTest {
   @Mock
   private BattleCli battleCli;
 
+  @Mock
+  private BattlegroundService battlegroundService;
+
+  @Mock
+  private ResultRepository resultRepository;
+
+  @Mock
+  private BattleLogger battleLogger;
+
   private final List<Integer> valores = new ArrayList<>();
 
   private static final TurnAction NADA = (actor, opponent, battleground) -> { };
 
   private static final TurnAction NOCAUTE =
       (actor, opponent, battleground) -> opponent.takeDamage(1000.0);
+
+  private RunBattleUseCase useCase() {
+    return new RunBattleUseCase(battleCli, battlegroundService, resultRepository, battleLogger);
+  }
 
   private Battle criarBatalha(Trainer trainerA, Trainer trainerB, Battleground terreno) {
     return new Battle(trainerA, trainerB, terreno);
@@ -53,7 +70,7 @@ public class RunBattleUseCaseTest {
     });
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
 
-    new RunBattleUseCase(battleCli).execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
 
     assertEquals(List.of(32), valores);
   }
@@ -69,7 +86,7 @@ public class RunBattleUseCaseTest {
     });
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
 
-    new RunBattleUseCase(battleCli).execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
 
     assertEquals(List.of(76), valores);
   }
@@ -87,7 +104,7 @@ public class RunBattleUseCaseTest {
         });
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
 
-    new RunBattleUseCase(battleCli).execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
 
     assertEquals(List.of(38), valores);
   }
@@ -103,7 +120,7 @@ public class RunBattleUseCaseTest {
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
     Battle battle = criarBatalha(trainerA, trainerB, new HotAsphalt());
 
-    new RunBattleUseCase(battleCli).execute(battle);
+    useCase().execute(battle);
 
     assertEquals(trainerA, battle.getWinner());
     verify(battleCli, times(1)).promptAction(eq(trainerA), anyInt());
@@ -116,6 +133,7 @@ public class RunBattleUseCaseTest {
     Trainer trainerA = new Trainer("A", PokeSalCatalog.createBulbaSal());
     Trainer trainerB = new Trainer("B", PokeSalCatalog.createCharSal());
     trainerA.getPokeSal().takeDamage(20.0);
+    when(battlegroundService.isActive(any())).thenReturn(true);
     when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NADA,
         (actor, opponent, bg) -> {
           valores.add(actor.getHp());
@@ -123,8 +141,7 @@ public class RunBattleUseCaseTest {
         });
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
 
-    new RunBattleUseCase(battleCli)
-        .execute(criarBatalha(trainerA, trainerB, new CentralFlowerbed()));
+    useCase().execute(criarBatalha(trainerA, trainerB, new CentralFlowerbed()));
 
     assertEquals(List.of(27), valores);
   }
@@ -135,12 +152,13 @@ public class RunBattleUseCaseTest {
     Trainer trainerA = new Trainer("A", PokeSalCatalog.createBulbaSal());
     Trainer trainerB = new Trainer("B", PokeSalCatalog.createCharSal());
     trainerA.getPokeSal().takeDamage(44.0);
+    when(battlegroundService.isActive(any())).thenReturn(true);
     trainerA.getPokeSal().applyStatus(new Poison());
     when(battleCli.promptAction(eq(trainerA), anyInt())).thenReturn(NADA);
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
     Battle battle = criarBatalha(trainerA, trainerB, new CentralFlowerbed());
 
-    new RunBattleUseCase(battleCli).execute(battle);
+    useCase().execute(battle);
 
     assertEquals(0, trainerA.getPokeSal().getHp());
     assertEquals(trainerB, battle.getWinner());
@@ -161,7 +179,7 @@ public class RunBattleUseCaseTest {
         });
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
 
-    new RunBattleUseCase(battleCli).execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
 
     assertEquals(List.of(78), valores);
   }
@@ -180,7 +198,7 @@ public class RunBattleUseCaseTest {
         });
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
 
-    new RunBattleUseCase(battleCli).execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
+    useCase().execute(criarBatalha(trainerA, trainerB, new HotAsphalt()));
 
     assertEquals(List.of(55, 43), valores);
   }
@@ -193,7 +211,7 @@ public class RunBattleUseCaseTest {
     when(battleCli.promptAction(eq(trainerB), anyInt())).thenReturn(NADA);
     Battle battle = criarBatalha(trainerA, trainerB, new HotAsphalt());
 
-    new RunBattleUseCase(battleCli).execute(battle);
+    useCase().execute(battle);
 
     assertEquals(1, battle.getTurns().size());
     assertEquals(trainerA, battle.getWinner());
