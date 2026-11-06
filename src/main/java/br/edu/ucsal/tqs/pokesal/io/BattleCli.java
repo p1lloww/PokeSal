@@ -21,6 +21,8 @@ import java.util.function.Supplier;
 public class BattleCli {
 
   private static final int SEPARATOR_WIDTH = 50;
+  private static final int SMALL_TOURNAMENT_SIZE = 4;
+  private static final int LARGE_TOURNAMENT_SIZE = 8;
 
   private final Scanner scanner;
   private final TurnActionFactory turnActionFactory;
@@ -256,8 +258,8 @@ public class BattleCli {
    */
   public int promptTournamentSize() {
     System.out.println("Quantos treinadores vão participar do torneio?");
-    System.out.println("1 - 4 treinadores");
-    System.out.println("2 - 8 treinadores");
-    return readValidChoice(2) == 1 ? 4 : 8;
+    System.out.println("1 - " + SMALL_TOURNAMENT_SIZE + " treinadores");
+    System.out.println("2 - " + LARGE_TOURNAMENT_SIZE + " treinadores");
+    return readValidChoice(2) == 1 ? SMALL_TOURNAMENT_SIZE : LARGE_TOURNAMENT_SIZE;
   }
 }
