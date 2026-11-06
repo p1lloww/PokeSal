@@ -45,6 +45,11 @@ public class ConsoleBattleLogger implements BattleLogger {
   }
 
   @Override
+  public void logActionTimeout(Trainer trainer) {
+    out.println(trainer.getName() + " excedeu o tempo para escolher a ação e perdeu a vez!");
+  }
+
+  @Override
   public void logAttack(PokeSal attacker, PokeSal defender, Move move) {
     out.println(label(attacker) + " usou " + move.name() + " em " + label(defender) + "!");
   }

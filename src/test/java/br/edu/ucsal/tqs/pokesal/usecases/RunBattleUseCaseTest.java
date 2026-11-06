@@ -24,6 +24,10 @@ import br.edu.ucsal.tqs.pokesal.io.BattleCli;
 import br.edu.ucsal.tqs.pokesal.repositories.ResultRepository;
 import br.edu.ucsal.tqs.pokesal.services.battleground.BattlegroundService;
 import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
+import br.edu.ucsal.tqs.pokesal.services.notification.TrainerNotifier;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +50,12 @@ public class RunBattleUseCaseTest {
   @Mock
   private BattleLogger battleLogger;
 
+  @Mock
+  private TrainerNotifier trainerNotifier;
+
+  private final Clock relogioParado =
+      Clock.fixed(Instant.parse("2026-01-01T12:00:00Z"), ZoneOffset.UTC);
+
   private final List<Integer> valores = new ArrayList<>();
 
   private static final TurnAction NADA = (actor, opponent, battleground) -> { };
@@ -54,7 +64,8 @@ public class RunBattleUseCaseTest {
       (actor, opponent, battleground) -> opponent.takeDamage(1000.0);
 
   private RunBattleUseCase useCase() {
-    return new RunBattleUseCase(battleCli, battlegroundService, resultRepository, battleLogger);
+    return new RunBattleUseCase(battleCli, battlegroundService, resultRepository, battleLogger,
+        trainerNotifier, relogioParado);
   }
 
   private Battle criarBatalha(Trainer trainerA, Trainer trainerB, Battleground terreno) {

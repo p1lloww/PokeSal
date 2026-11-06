@@ -177,7 +177,13 @@ classDiagram
     -battlegroundService: BattlegroundService
     -resultRepository: ResultRepository
     -battleLogger: BattleLogger
+    -trainerNotifier: TrainerNotifier
+    -clock: Clock
+    +ACTION_TIME_LIMIT: Duration$
+    +CRITICAL_HP_RATIO: double$
     +execute(battle: Battle) void
+    -promptActionWithinTimeLimit(trainer: Trainer, turnNumber: int) TurnAction
+    -alertCriticalHp(battle: Battle, alertedPokeSals: Set~PokeSal~) void
     -saveResult(battle: Battle) void
     -endTurn(self: PokeSal, opponent: PokeSal, battleground: Battleground, turnNumber: int) void
   }
@@ -245,6 +251,7 @@ classDiagram
   class BattleLogger {
     <<interface>>
     +logBattleStart(trainerA: Trainer, trainerB: Trainer) void
+    +logActionTimeout(trainer: Trainer) void
     +logAttack(attacker: PokeSal, defender: PokeSal, move: Move) void
     +logDamage(defender: PokeSal, damage: double, critical: boolean) void
     +logMiss(attacker: PokeSal, move: Move) void
@@ -259,6 +266,15 @@ classDiagram
     -out: PrintStream
     -trainerNames: Map~PokeSal, String~
     -label(pokeSal: PokeSal) String
+  }
+
+  class TrainerNotifier {
+    <<interface>>
+    +notifyCriticalHp(trainer: Trainer, pokeSal: PokeSal) void
+  }
+
+  class ConsoleTrainerNotifier {
+    -out: PrintStream
   }
 
   %% ---------- Itens e efeitos ----------
@@ -452,6 +468,8 @@ classDiagram
   RunBattleUseCase --> BattlegroundService
   RunBattleUseCase --> ResultRepository
   RunBattleUseCase --> BattleLogger
+  RunBattleUseCase --> TrainerNotifier
+  RunBattleUseCase --> Clock
   RunBattleUseCase ..> BattleResult : cria
   BattleResult --> Trainer
 
@@ -463,6 +481,7 @@ classDiagram
   WeatherProvider <|.. RandomWeatherProvider
   RandomWeatherProvider ..> RandomGenerator : sorteio
   ResultRepository <|.. InMemoryResultRepository
+  TrainerNotifier <|.. ConsoleTrainerNotifier
   InMemoryResultRepository o-- BattleResult
   BattleLogger <|.. ConsoleBattleLogger
 
@@ -499,11 +518,13 @@ classDiagram
   style BattlegroundService fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style WeatherProvider fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style ResultRepository fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  style TrainerNotifier fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style BattleLogger fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style DefaultRandomGenerator fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style DefaultBattlegroundService fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style RandomWeatherProvider fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style InMemoryResultRepository fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style ConsoleTrainerNotifier fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style ConsoleBattleLogger fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style BattleResult fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style DamageResult fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px

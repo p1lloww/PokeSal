@@ -27,12 +27,22 @@ sequenceDiagram
   participant BG as Battleground
   participant DEF as PokeSal (defensor)
   participant LOG as «interface»<br/>BattleLogger
+  participant CLK as Clock
+  participant TN as «interface»<br/>TrainerNotifier
 
   UC->>CLI: renderBattleState(battle)
-  UC->>CLI: promptAction(trainerA, turnNumber)
-  CLI-->>UC: action1
-  UC->>CLI: promptAction(trainerB, turnNumber)
-  CLI-->>UC: action2
+  loop Para cada treinador (A e depois B)
+    UC->>CLK: instant()
+    CLK-->>UC: início
+    UC->>CLI: promptAction(trainer, turnNumber)
+    CLI-->>UC: ação escolhida
+    UC->>CLK: instant()
+    CLK-->>UC: fim
+    opt fim - início > 30s (RA-04)
+      UC->>LOG: logActionTimeout(trainer)
+      Note over UC: a ação é trocada por uma<br/>ação que não faz nada
+    end
+  end
   UC->>T: new Turn(turnNumber)
   UC->>T: execute(pokeSalA, pokeSalB, action1, action2, battleground)
   T->>T: decide a ordem pelo SPD (empate: pokeSal1 primeiro)
@@ -87,6 +97,9 @@ sequenceDiagram
 
   UC->>B: addTurn(turn)
   UC->>B: checkForWinner()
+  opt batalha não terminou e HP < 25% ainda não alertado (RA-05)
+    UC->>TN: notifyCriticalHp(trainer, pokeSal)
+  end
 
   opt batalha ainda não terminou
     loop Para cada PokeSal (endTurn)
@@ -98,4 +111,7 @@ sequenceDiagram
       end
     end
     UC->>B: checkForWinner()
+    opt batalha não terminou e HP < 25% ainda não alertado (RA-05)
+      UC->>TN: notifyCriticalHp(trainer, pokeSal)
+    end
   end
