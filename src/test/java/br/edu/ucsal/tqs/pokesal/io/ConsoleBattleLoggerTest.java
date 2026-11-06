@@ -84,4 +84,12 @@ public class ConsoleBattleLoggerTest {
     assertEquals("BulbaSal (Balt) foi afetado por Poison!\n"
         + "BulbaSal (Balt) perdeu 5 de HP por causa de Poison.\n", linhas());
   }
+
+  @Test
+  @DisplayName("Tempo esgotado deve informar que o treinador perdeu a vez")
+  void tempoEsgotadoInformaQueTreinadorPerdeuAVez() {
+    logger.logActionTimeout(trainerA);
+
+    assertEquals("Alan excedeu o tempo para escolher a ação e perdeu a vez!\n", linhas());
+  }
 }

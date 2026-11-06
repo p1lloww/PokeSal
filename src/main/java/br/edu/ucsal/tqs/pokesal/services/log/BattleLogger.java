@@ -24,6 +24,14 @@ public interface BattleLogger {
   void logBattleStart(Trainer trainerA, Trainer trainerB);
 
   /**
+   * Registra que um treinador demorou mais que o tempo limite para escolher a ação e perdeu a vez
+   * no turno.
+   *
+   * @param trainer o treinador que perdeu a vez
+   */
+  void logActionTimeout(Trainer trainer);
+
+  /**
    * Registra que um PokeSal usou um golpe contra o adversário.
    *
    * @param attacker o PokeSal que usou o golpe

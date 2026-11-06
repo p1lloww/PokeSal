@@ -6,6 +6,7 @@ import br.edu.ucsal.tqs.pokesal.entities.catalogs.BattlegroundCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnActionFactory;
 import br.edu.ucsal.tqs.pokesal.io.BattleCli;
 import br.edu.ucsal.tqs.pokesal.io.ConsoleBattleLogger;
+import br.edu.ucsal.tqs.pokesal.io.ConsoleTrainerNotifier;
 import br.edu.ucsal.tqs.pokesal.repositories.InMemoryResultRepository;
 import br.edu.ucsal.tqs.pokesal.repositories.ResultRepository;
 import br.edu.ucsal.tqs.pokesal.services.DamageCalculatorService;
@@ -13,6 +14,7 @@ import br.edu.ucsal.tqs.pokesal.services.battleground.BattlegroundService;
 import br.edu.ucsal.tqs.pokesal.services.battleground.DefaultBattlegroundService;
 import br.edu.ucsal.tqs.pokesal.services.battleground.RandomWeatherProvider;
 import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
+import br.edu.ucsal.tqs.pokesal.services.notification.TrainerNotifier;
 import br.edu.ucsal.tqs.pokesal.services.random.DefaultRandomGenerator;
 import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
 import br.edu.ucsal.tqs.pokesal.usecases.ChooseInitialPokeSalUseCase;
@@ -40,8 +42,9 @@ public final class BattleRunner {
    */
   public static void main(String[] args) {
     RandomGenerator randomGenerator = new DefaultRandomGenerator(new Random());
+    Clock clock = Clock.systemDefaultZone();
     BattlegroundService battlegroundService = new DefaultBattlegroundService(
-        Clock.systemDefaultZone(), new RandomWeatherProvider(randomGenerator));
+        clock, new RandomWeatherProvider(randomGenerator));
     BattleLogger battleLogger = new ConsoleBattleLogger(System.out);
 
     DamageCalculatorService damageCalculatorService =
@@ -68,8 +71,9 @@ public final class BattleRunner {
         BattlegroundCatalog.randomBattleground(randomGenerator));
 
     ResultRepository resultRepository = new InMemoryResultRepository();
-    RunBattleUseCase runBattleUseCase =
-        new RunBattleUseCase(battleCli, battlegroundService, resultRepository, battleLogger);
+    TrainerNotifier trainerNotifier = new ConsoleTrainerNotifier(System.out);
+    RunBattleUseCase runBattleUseCase = new RunBattleUseCase(battleCli, battlegroundService,
+        resultRepository, battleLogger, trainerNotifier, clock);
     runBattleUseCase.execute(battle);
   }
 }
