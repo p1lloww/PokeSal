@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PokeSal.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities</a> &gt; <span class="el_source">PokeSal.java</span></div><h1>PokeSal.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities;
+
+import br.edu.ucsal.tqs.pokesal.entities.effects.Effect;
+import br.edu.ucsal.tqs.pokesal.entities.passives.Passive;
+import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Representa um PokeSal em batalha, com HP, ATK, DEF e SPD atuais, tipo elemental, lista de
+ * movimentos, uma passiva fixa, condição de status e efeitos temporários ativos.
+ */
+public class PokeSal {
+
+  private static final int MAX_MOVES = 4;
+  private static final double STAT_TOLERANCE = 1e-9;
+
+  private final String name;
+  private final String description;
+  private int hp;
+  private final int maxHp;
+  private final int baseAtk;
+  private final int baseDef;
+  private final int baseSpd;
+<span class="fc" id="L27">  private double atkMultiplier = 1.0;</span>
+<span class="fc" id="L28">  private double defMultiplier = 1.0;</span>
+<span class="fc" id="L29">  private double spdMultiplier = 1.0;</span>
+  private final ElementType elementType;
+  private final List&lt;Move&gt; moves;
+  private final Passive passive;
+  private StatusCondition statusCondition;
+<span class="fc" id="L34">  private final Map&lt;Integer, List&lt;Effect&gt;&gt; activeEffects = new HashMap&lt;&gt;();</span>
+
+  /**
+   * Cria um novo PokeSal com os atributos, tipo, movimentos e passiva especificados.
+   *
+   * @param name        o nome do PokeSal
+   * @param description a descrição do PokeSal
+   * @param hp          os pontos de vida máximos
+   * @param atk         o atributo de ataque base
+   * @param def         o atributo de defesa base
+   * @param spd         o atributo de velocidade base
+   * @param elementType o tipo elemental
+   * @param moves       a lista de movimentos, entre 1 e 4
+   * @param passive     a habilidade passiva fixa deste PokeSal
+   * @throws IllegalArgumentException se algum atributo numérico não for positivo, se a lista de
+   *                                  movimentos for nula, vazia ou tiver mais de 4 elementos
+   * @throws NullPointerException     se name, description, elementType ou passive forem nulos
+   */
+  public PokeSal(String name, String description, int hp, int atk, int def, int spd,
+<span class="fc" id="L53">      ElementType elementType, List&lt;Move&gt; moves, Passive passive) {</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">    if (name == null) {</span>
+<span class="fc" id="L56">      throw new NullPointerException(&quot;O nome não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    if (description == null) {</span>
+<span class="fc" id="L59">      throw new NullPointerException(&quot;A descrição não pode ser nula&quot;);</span>
+    }
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (hp &lt;= 0) {</span>
+<span class="fc" id="L62">      throw new IllegalArgumentException(&quot;HP precisa ser maior que 0&quot;);</span>
+    }
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    if (atk &lt;= 0) {</span>
+<span class="fc" id="L65">      throw new IllegalArgumentException(&quot;ATK precisa ser maior que 0&quot;);</span>
+    }
+<span class="fc bfc" id="L67" title="All 2 branches covered.">    if (def &lt;= 0) {</span>
+<span class="fc" id="L68">      throw new IllegalArgumentException(&quot;DEF precisa ser maior que 0&quot;);</span>
+    }
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    if (spd &lt;= 0) {</span>
+<span class="fc" id="L71">      throw new IllegalArgumentException(&quot;SPD precisa ser maior que 0&quot;);</span>
+    }
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    if (elementType == null) {</span>
+<span class="fc" id="L74">      throw new NullPointerException(&quot;O tipo elemental não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L76" title="All 4 branches covered.">    if (moves == null || moves.isEmpty()) {</span>
+<span class="fc" id="L77">      throw new IllegalArgumentException(&quot;O PokeSal precisa ter ao menos um movimento&quot;);</span>
+    }
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    if (moves.size() &gt; MAX_MOVES) {</span>
+<span class="fc" id="L80">      throw new IllegalArgumentException(&quot;O PokeSal pode ter no máximo 4 movimentos&quot;);</span>
+    }
+<span class="fc bfc" id="L82" title="All 2 branches covered.">    if (passive == null) {</span>
+<span class="fc" id="L83">      throw new NullPointerException(&quot;A passiva não pode ser nula&quot;);</span>
+    }
+
+<span class="fc" id="L86">    this.name = name;</span>
+<span class="fc" id="L87">    this.description = description;</span>
+<span class="fc" id="L88">    this.hp = hp;</span>
+<span class="fc" id="L89">    this.maxHp = hp;</span>
+<span class="fc" id="L90">    this.baseAtk = atk;</span>
+<span class="fc" id="L91">    this.baseDef = def;</span>
+<span class="fc" id="L92">    this.baseSpd = spd;</span>
+<span class="fc" id="L93">    this.elementType = elementType;</span>
+<span class="fc" id="L94">    this.moves = new ArrayList&lt;&gt;(moves);</span>
+<span class="fc" id="L95">    this.passive = passive;</span>
+<span class="fc" id="L96">  }</span>
+
+  /**
+   * Aplica dano a este PokeSal, reduzindo o HP atual. O HP nunca fica abaixo de zero.
+   *
+   * @param amount quantidade de dano a ser aplicada
+   * @throws IllegalArgumentException se amount for negativo
+   */
+  public void takeDamage(double amount) {
+<span class="fc bfc" id="L105" title="All 2 branches covered.">    if (amount &lt; 0) {</span>
+<span class="fc" id="L106">      throw new IllegalArgumentException(&quot;A quantidade de dano nao pode ser negativa&quot;);</span>
+    }
+
+<span class="fc" id="L109">    hp = (int) Math.max(0, hp - amount);</span>
+<span class="fc" id="L110">  }</span>
+
+  /**
+   * Restaura HP deste PokeSal. O HP restaurado nunca ultrapassa o HP máximo.
+   *
+   * @param amount quantidade de HP a ser restaurada
+   * @throws IllegalArgumentException se amount for negativo
+   */
+  public void heal(double amount) {
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    if (amount &lt; 0) {</span>
+<span class="fc" id="L120">      throw new IllegalArgumentException(</span>
+          &quot;A quantidade de vida a ser curada nao pode ser negativa&quot;);
+    }
+
+<span class="fc" id="L124">    hp = (int) Math.min(maxHp, hp + amount);</span>
+<span class="fc" id="L125">  }</span>
+
+  /**
+   * Aplica um multiplicador ao ATK deste PokeSal. Usado tanto para conceder quanto para reverter
+   * buffs e debuffs de ataque, aplicando o multiplicador inverso na reversão. Os multiplicadores se
+   * acumulam sobre o ATK base, então a reversão devolve o valor original.
+   *
+   * @param multiplier fator multiplicativo aplicado ao ATK
+   * @throws IllegalArgumentException se multiplier for negativo
+   */
+  public void applyAttackBuff(double multiplier) {
+<span class="fc" id="L136">    validateMultiplier(multiplier);</span>
+<span class="fc" id="L137">    atkMultiplier *= multiplier;</span>
+<span class="fc" id="L138">  }</span>
+
+  /**
+   * Aplica um multiplicador ao DEF deste PokeSal. Usado tanto para conceder quanto para reverter
+   * buffs e debuffs de defesa, aplicando o multiplicador inverso na reversão. Os multiplicadores se
+   * acumulam sobre o DEF base, então a reversão devolve o valor original.
+   *
+   * @param multiplier fator multiplicativo aplicado ao DEF
+   * @throws IllegalArgumentException se multiplier for negativo
+   */
+  public void applyDefenseBuff(double multiplier) {
+<span class="fc" id="L149">    validateMultiplier(multiplier);</span>
+<span class="fc" id="L150">    defMultiplier *= multiplier;</span>
+<span class="fc" id="L151">  }</span>
+
+  /**
+   * Aplica um multiplicador ao SPD deste PokeSal. Usado tanto para conceder quanto para reverter
+   * buffs e debuffs de velocidade, aplicando o multiplicador inverso na reversão. Os
+   * multiplicadores se acumulam sobre o SPD base, então a reversão devolve o valor original.
+   *
+   * @param multiplier fator multiplicativo aplicado ao SPD
+   * @throws IllegalArgumentException se multiplier for negativo
+   */
+  public void applySpeedBuff(double multiplier) {
+<span class="fc" id="L162">    validateMultiplier(multiplier);</span>
+<span class="fc" id="L163">    spdMultiplier *= multiplier;</span>
+<span class="fc" id="L164">  }</span>
+
+  /**
+   * Aplica uma condição de status a este PokeSal, caso ele não possua nenhuma condição ativa e sua
+   * passiva não bloqueie a aplicação. Dispara o efeito imediato da condição, se houver.
+   *
+   * @param status a condição de status a ser aplicada
+   * @throws NullPointerException se status for nulo
+   */
+  public void applyStatus(StatusCondition status) {
+<span class="fc bfc" id="L174" title="All 2 branches covered.">    if (status == null) {</span>
+<span class="fc" id="L175">      throw new NullPointerException(&quot;A condição de status não pode ser nula&quot;);</span>
+    }
+<span class="fc bfc" id="L177" title="All 2 branches covered.">    if (this.statusCondition != null) {</span>
+<span class="fc" id="L178">      return;</span>
+    }
+<span class="fc bfc" id="L180" title="All 2 branches covered.">    if (this.passive.preventsStatusApplication(this)) {</span>
+<span class="fc" id="L181">      return;</span>
+    }
+
+<span class="fc" id="L184">    this.statusCondition = status;</span>
+<span class="fc" id="L185">    status.onApply(this);</span>
+<span class="fc" id="L186">  }</span>
+
+  /**
+   * Remove a condição de status atual deste PokeSal, caso exista uma. Não tem efeito caso o PokeSal
+   * não possua condição de status ativa.
+   */
+  public void clearStatus() {
+<span class="fc bfc" id="L193" title="All 2 branches covered.">    if (statusCondition != null) {</span>
+<span class="fc" id="L194">      statusCondition.onRemove(this);</span>
+    }
+<span class="fc" id="L196">    this.statusCondition = null;</span>
+<span class="fc" id="L197">  }</span>
+
+  /**
+   * Aplica o efeito de um item a este PokeSal, agendando sua reversão ao final do turno
+   * correspondente caso o efeito seja temporário.
+   *
+   * @param effect      o efeito a ser aplicado
+   * @param currentTurn o número do turno atual, usado para calcular a expiração de efeitos
+   *                    temporários
+   * @throws NullPointerException se effect for nulo
+   */
+  public void receiveEffect(Effect effect, int currentTurn) {
+<span class="fc bfc" id="L209" title="All 2 branches covered.">    if (effect == null) {</span>
+<span class="fc" id="L210">      throw new NullPointerException(&quot;O efeito não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L213">    effect.applyEffect(this);</span>
+
+<span class="fc bfc" id="L215" title="All 2 branches covered.">    if (effect.isTemporary()) {</span>
+<span class="fc" id="L216">      int expiresAt = currentTurn + 1;</span>
+<span class="fc" id="L217">      this.activeEffects.computeIfAbsent(expiresAt, key -&gt; new ArrayList&lt;&gt;()).add(effect);</span>
+    }
+<span class="fc" id="L219">  }</span>
+
+  /**
+   * Reverte todos os efeitos temporários cuja expiração está agendada para o turno informado,
+   * removendo-os da lista de efeitos ativos.
+   *
+   * @param currentTurn o número do turno a ser verificado
+   */
+  public void expireEffects(int currentTurn) {
+<span class="fc" id="L228">    List&lt;Effect&gt; expiring = this.activeEffects.remove(currentTurn);</span>
+
+<span class="fc bfc" id="L230" title="All 2 branches covered.">    if (expiring != null) {</span>
+<span class="fc" id="L231">      expiring.forEach(effect -&gt; effect.removeEffect(this));</span>
+    }
+<span class="fc" id="L233">  }</span>
+
+  /**
+   * Restaura o PokeSal para uma nova batalha: HP cheio, sem condição de status, sem buffs ou
+   * debuffs e sem efeitos temporários pendentes. A passiva também volta ao estado inicial.
+   */
+  public void restore() {
+<span class="fc" id="L240">    hp = maxHp;</span>
+<span class="fc" id="L241">    statusCondition = null;</span>
+<span class="fc" id="L242">    atkMultiplier = 1.0;</span>
+<span class="fc" id="L243">    defMultiplier = 1.0;</span>
+<span class="fc" id="L244">    spdMultiplier = 1.0;</span>
+<span class="fc" id="L245">    activeEffects.clear();</span>
+<span class="fc" id="L246">    passive.reset();</span>
+<span class="fc" id="L247">  }</span>
+
+  private static void validateMultiplier(double multiplier) {
+<span class="fc bfc" id="L250" title="All 2 branches covered.">    if (multiplier &lt; 0) {</span>
+<span class="fc" id="L251">      throw new IllegalArgumentException(&quot;o multiplicador nao pode ser negativo&quot;);</span>
+    }
+<span class="fc" id="L253">  }</span>
+
+  private static int applyMultiplier(int base, double multiplier) {
+<span class="fc" id="L256">    return (int) (base * multiplier + STAT_TOLERANCE);</span>
+  }
+
+  public String getName() {
+<span class="fc" id="L260">    return name;</span>
+  }
+
+  public String getDescription() {
+<span class="nc" id="L264">    return description;</span>
+  }
+
+  public int getHp() {
+<span class="fc" id="L268">    return hp;</span>
+  }
+
+  public int getMaxHp() {
+<span class="fc" id="L272">    return maxHp;</span>
+  }
+
+  public int getAtk() {
+<span class="fc" id="L276">    return applyMultiplier(baseAtk, atkMultiplier);</span>
+  }
+
+  public int getDef() {
+<span class="fc" id="L280">    return applyMultiplier(baseDef, defMultiplier);</span>
+  }
+
+  public int getSpd() {
+<span class="fc" id="L284">    return applyMultiplier(baseSpd, spdMultiplier);</span>
+  }
+
+  public ElementType getElementType() {
+<span class="fc" id="L288">    return elementType;</span>
+  }
+
+  public Passive getPassive() {
+<span class="fc" id="L292">    return passive;</span>
+  }
+
+  public StatusCondition getStatusCondition() {
+<span class="fc" id="L296">    return statusCondition;</span>
+  }
+
+  public List&lt;Move&gt; getMoves() {
+<span class="fc" id="L300">    return new ArrayList&lt;&gt;(moves);</span>
+  }
+
+  public Map&lt;Integer, List&lt;Effect&gt;&gt; getActiveEffects() {
+<span class="fc" id="L304">    return new HashMap&lt;&gt;(activeEffects);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

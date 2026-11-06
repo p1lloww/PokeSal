@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CentralFlowerbed.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.battlegrounds.grass</a> &gt; <span class="el_source">CentralFlowerbed.java</span></div><h1>CentralFlowerbed.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.battlegrounds.grass;
+
+import br.edu.ucsal.tqs.pokesal.entities.ElementType;
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+
+/**
+ * Terreno que representa o canteiro central do estacionamento da UCSal, curando 5% do HP máximo de
+ * PokeSal do tipo Planta ao final de cada turno.
+ */
+<span class="fc" id="L11">public class CentralFlowerbed implements Battleground {</span>
+
+  private static final double HEAL_PERCENTAGE = 0.05;
+
+  @Override
+  public String getName() {
+<span class="nc" id="L17">    return &quot;Central Flowerbed&quot;;</span>
+  }
+
+  @Override
+  public String getDescription() {
+<span class="nc" id="L22">    return &quot;Cura 5% do HP máximo de PokeSal do tipo Planta ao final de cada turno.&quot;;</span>
+  }
+
+  @Override
+  public void onTurnEnd(PokeSal activePokeSal) {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">    if (activePokeSal.getElementType() == ElementType.PLANT) {</span>
+<span class="fc" id="L28">      activePokeSal.heal(activePokeSal.getMaxHp() * HEAL_PERCENTAGE);</span>
+    }
+<span class="fc" id="L30">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

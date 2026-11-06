@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MoveAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.turnactions</a> &gt; <span class="el_source">MoveAction.java</span></div><h1>MoveAction.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.turnactions;
+
+import br.edu.ucsal.tqs.pokesal.entities.Move;
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.services.DamageCalculatorService;
+import br.edu.ucsal.tqs.pokesal.services.DamageResult;
+import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
+import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
+
+/**
+ * Ação de turno que representa o uso de um golpe (Move) por um PokeSal. Se o golpe acertar, aplica
+ * dano ao oponente, avisa a passiva do oponente sobre o dano recebido e, com a chance definida pelo
+ * golpe, aplica uma condição de status. Cada etapa é enviada ao BattleLogger na ordem: ataque,
+ * dano, efeito de status e efeito de terreno.
+ */
+public class MoveAction implements TurnAction {
+
+  private final Move move;
+  private final DamageCalculatorService damageCalculatorService;
+  private final RandomGenerator randomGenerator;
+  private final BattleLogger battleLogger;
+
+  /**
+   * Cria uma nova ação de ataque com o golpe e os colaboradores informados.
+   *
+   * @param move                    o golpe a ser executado
+   * @param damageCalculatorService o serviço usado para calcular o dano do golpe
+   * @param randomGenerator         o gerador usado no sorteio da condição de status
+   * @param battleLogger            o registro que recebe os eventos da ação
+   * @throws NullPointerException se algum dos argumentos for nulo
+   */
+  public MoveAction(Move move, DamageCalculatorService damageCalculatorService,
+<span class="fc" id="L34">      RandomGenerator randomGenerator, BattleLogger battleLogger) {</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (move == null) {</span>
+<span class="fc" id="L36">      throw new NullPointerException(&quot;O golpe não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">    if (damageCalculatorService == null) {</span>
+<span class="nc" id="L39">      throw new NullPointerException(&quot;O serviço de dano não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">    if (randomGenerator == null) {</span>
+<span class="nc" id="L42">      throw new NullPointerException(&quot;O gerador aleatório não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">    if (battleLogger == null) {</span>
+<span class="nc" id="L45">      throw new NullPointerException(&quot;O registro de batalha não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L48">    this.move = move;</span>
+<span class="fc" id="L49">    this.damageCalculatorService = damageCalculatorService;</span>
+<span class="fc" id="L50">    this.randomGenerator = randomGenerator;</span>
+<span class="fc" id="L51">    this.battleLogger = battleLogger;</span>
+<span class="fc" id="L52">  }</span>
+
+  @Override
+  public void execute(PokeSal actor, PokeSal opponent, Battleground battleground) {
+<span class="fc" id="L56">    battleLogger.logAttack(actor, opponent, move);</span>
+
+<span class="fc" id="L58">    DamageResult result =</span>
+<span class="fc" id="L59">        damageCalculatorService.calculateDamage(actor, opponent, move, battleground);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">    if (!result.hit()) {</span>
+<span class="fc" id="L61">      battleLogger.logMiss(actor, move);</span>
+<span class="fc" id="L62">      return;</span>
+    }
+
+<span class="fc" id="L65">    opponent.takeDamage(result.damage());</span>
+<span class="fc" id="L66">    battleLogger.logDamage(opponent, result.damage(), result.critical());</span>
+<span class="fc" id="L67">    opponent.getPassive().onDamageTaken(opponent, actor, result.damage());</span>
+
+<span class="fc bfc" id="L69" title="All 4 branches covered.">    if (move.statusEffect() != null &amp;&amp; opponent.getHp() &gt; 0</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        &amp;&amp; randomGenerator.nextDouble() &lt; move.statusChance()) {</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">      boolean hadStatus = opponent.getStatusCondition() != null;</span>
+<span class="fc" id="L72">      opponent.applyStatus(move.statusEffect());</span>
+<span class="pc bpc" id="L73" title="2 of 4 branches missed.">      if (!hadStatus &amp;&amp; opponent.getStatusCondition() != null) {</span>
+<span class="fc" id="L74">        battleLogger.logStatusEffect(opponent, opponent.getStatusCondition());</span>
+      }
+    }
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">    if (result.battlegroundApplied()) {</span>
+<span class="fc" id="L79">      battleLogger.logBattlegroundEffect(battleground, opponent);</span>
+    }
+<span class="fc" id="L81">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

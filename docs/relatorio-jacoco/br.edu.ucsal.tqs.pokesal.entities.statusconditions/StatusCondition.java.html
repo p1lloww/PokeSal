@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StatusCondition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.statusconditions</a> &gt; <span class="el_source">StatusCondition.java</span></div><h1>StatusCondition.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.statusconditions;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+
+/**
+ * Representa uma condição de status negativa aplicada a um PokeSal durante a batalha, como
+ * queimadura, veneno ou paralisia. Diferente de uma Passive, uma StatusCondition não é fixa: é
+ * aplicada durante o combate, persiste por vários turnos e pode ser removida. Cada implementação
+ * concreta define apenas o comportamento que lhe é próprio; os demais métodos herdam o
+ * comportamento neutro declarado nesta interface.
+ */
+public interface StatusCondition {
+
+  /**
+   * Retorna o nome de exibição desta condição de status.
+   *
+   * @return o nome da condição, como &quot;Burn&quot; ou &quot;Poison&quot;
+   */
+  String getName();
+
+  /**
+   * Retorna a descrição textual do efeito desta condição de status, exibida ao jogador.
+   *
+   * @return a descrição da condição de status
+   */
+  String getDescription();
+
+  /**
+   * Reage ao momento em que esta condição de status é aplicada ao PokeSal informado, permitindo
+   * efeitos imediatos, se houver.
+   *
+   * @param self o PokeSal ao qual a condição foi aplicada
+   */
+  default void onApply(PokeSal self) {
+<span class="fc" id="L35">  }</span>
+
+  /**
+   * Reage ao fim de um turno de batalha enquanto esta condição de status está ativa, permitindo
+   * efeitos recorrentes como dano contínuo.
+   *
+   * @param self o PokeSal afetado por esta condição de status
+   */
+  default void onTurnEnd(PokeSal self) {
+<span class="fc" id="L44">  }</span>
+
+  /**
+   * Reage ao momento em que esta condição de status é removida do PokeSal informado, permitindo
+   * reverter efeitos aplicados em onApply, se houver.
+   *
+   * @param self o PokeSal do qual a condição foi removida
+   */
+  default void onRemove(PokeSal self) {
+<span class="fc" id="L53">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

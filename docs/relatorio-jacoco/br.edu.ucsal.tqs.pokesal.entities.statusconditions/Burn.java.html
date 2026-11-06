@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Burn.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.statusconditions</a> &gt; <span class="el_source">Burn.java</span></div><h1>Burn.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.statusconditions;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+
+/**
+ * Condição de status que causa dano contínuo ao final de cada turno e reduz o ATK do PokeSal
+ * afetado em 50% enquanto estiver ativa.
+ */
+<span class="fc" id="L9">public class Burn implements StatusCondition {</span>
+
+  private static final double DAMAGE_PERCENTAGE = 1.0 / 16.0;
+  private static final double ATTACK_REDUCTION_MULTIPLIER = 0.5;
+
+  @Override
+  public String getName() {
+<span class="nc" id="L16">    return &quot;Burn&quot;;</span>
+  }
+
+  @Override
+  public String getDescription() {
+<span class="nc" id="L21">    return &quot;Causa dano ao final de cada turno e reduz o ATK em 50%.&quot;;</span>
+  }
+
+  @Override
+  public void onApply(PokeSal self) {
+<span class="fc" id="L26">    self.applyAttackBuff(ATTACK_REDUCTION_MULTIPLIER);</span>
+<span class="fc" id="L27">  }</span>
+
+  @Override
+  public void onTurnEnd(PokeSal self) {
+<span class="nc" id="L31">    self.takeDamage(self.getMaxHp() * DAMAGE_PERCENTAGE);</span>
+<span class="nc" id="L32">  }</span>
+
+  @Override
+  public void onRemove(PokeSal self) {
+<span class="fc" id="L36">    self.applyAttackBuff(1 / ATTACK_REDUCTION_MULTIPLIER);</span>
+<span class="fc" id="L37">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
