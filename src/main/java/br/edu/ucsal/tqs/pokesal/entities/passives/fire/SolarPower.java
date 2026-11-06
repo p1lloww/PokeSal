@@ -44,4 +44,9 @@ public class SolarPower implements Passive {
       self.takeDamage(self.getMaxHp() * HP_COST_PERCENTAGE);
     }
   }
+
+  @Override
+  public void reset() {
+    active = false;
+  }
 }

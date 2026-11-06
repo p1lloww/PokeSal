@@ -44,4 +44,9 @@ public abstract class LowHpAttackBoost implements Passive {
       active = false;
     }
   }
+
+  @Override
+  public void reset() {
+    active = false;
+  }
 }

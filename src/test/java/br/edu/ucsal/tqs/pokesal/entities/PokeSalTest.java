@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.PokeSalCatalog;
+import br.edu.ucsal.tqs.pokesal.entities.effects.SpeedBuffEffect;
 import br.edu.ucsal.tqs.pokesal.entities.passives.fire.Blaze;
 import br.edu.ucsal.tqs.pokesal.entities.passives.Passive;
 import br.edu.ucsal.tqs.pokesal.entities.statusconditions.Burn;
@@ -174,5 +175,38 @@ public class PokeSalTest {
 
     assertThrows(IllegalArgumentException.class, () -> new PokeSal("Teste", "Descricao",
         50, 50, 50, 50, ElementType.FIRE, moves, BLAZE));
+  }
+
+  @Test
+  @DisplayName("Restaurar deve devolver HP, atributos e status ao estado inicial")
+  void restaurarVoltaAoEstadoInicial() {
+    PokeSal charSal = PokeSalCatalog.createCharSal();
+    charSal.takeDamage(20.0);
+    charSal.applyStatus(new Burn());
+    charSal.receiveEffect(new SpeedBuffEffect(), 1);
+
+    charSal.restore();
+    charSal.expireEffects(2);
+
+    assertEquals(39, charSal.getHp());
+    assertNull(charSal.getStatusCondition());
+    assertEquals(52, charSal.getAtk());
+    assertEquals(43, charSal.getDef());
+    assertEquals(65, charSal.getSpd());
+  }
+
+  @Test
+  @DisplayName("Restaurar deve permitir que a Blaze seja ativada de novo na batalha seguinte")
+  void restaurarReiniciaAPassiva() {
+    PokeSal charSal = PokeSalCatalog.createCharSal();
+    PokeSal oponente = PokeSalCatalog.createSquirtSal();
+    charSal.takeDamage(30.0);
+    charSal.getPassive().onDamageTaken(charSal, oponente, 30.0);
+
+    charSal.restore();
+    charSal.takeDamage(30.0);
+    charSal.getPassive().onDamageTaken(charSal, oponente, 30.0);
+
+    assertEquals(78, charSal.getAtk());
   }
 }

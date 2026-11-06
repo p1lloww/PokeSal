@@ -1,0 +1,58 @@
+---
+title: Diagrama de Sequência - Registro do resultado no torneio
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#FFE0B2"
+    primaryBorderColor: "#333333"
+    primaryTextColor: "#111111"
+    lineColor: "#333333"
+    secondaryColor: "#FFE0B2"
+    tertiaryColor: "#FFFFFF"
+    noteBkgColor: "#FFF9C4"
+    noteBorderColor: "#333333"
+    fontFamily: "Helvetica, Arial, sans-serif"
+---
+sequenceDiagram
+  autonumber
+  participant TU as RunTournamentUseCase
+  participant CLI as BattleCli
+  participant MR as «interface»<br/>MatchRunner
+  participant RG as «interface»<br/>RandomGenerator
+  participant UC as RunBattleUseCase
+  participant BR as BattleResult
+  participant REPO as «interface»<br/>ResultRepository
+  participant LOG as «interface»<br/>BattleLogger
+
+  TU->>TU: valida 4 ou 8 treinadores
+
+  loop Enquanto restar mais de um treinador (quartas, semifinal, final)
+    loop Para cada confronto da fase, na ordem de inscrição
+      TU->>CLI: announceMatch(fase, trainerA, trainerB)
+      TU->>MR: run(trainerA, trainerB)
+      Note over MR: implementação: DefaultMatchRunner
+      MR->>MR: restaura os PokeSal (restore)
+      MR->>RG: nextInt(3)
+      RG-->>MR: índice do terreno sorteado
+      MR->>UC: execute(battle)
+      UC->>UC: turnos até a batalha ter vencedor
+      UC->>BR: from(battle)
+      BR-->>UC: result
+      alt repositório salvou
+        UC->>REPO: save(result)
+      else repositório lançou exceção
+        UC->>REPO: save(result)
+        REPO--xUC: RuntimeException
+        UC->>LOG: logError("Não foi possível salvar...", e)
+        Note over UC: a batalha continua válida
+      end
+      UC-->>MR: batalha encerrada
+      MR->>BR: from(battle)
+      BR-->>MR: result
+      MR-->>TU: result
+      TU->>TU: confere se result.winner() é trainerA ou trainerB
+      TU->>TU: vencedor avança para a próxima fase
+    end
+  end
+
+  TU->>CLI: announceChampion(campeão)

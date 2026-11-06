@@ -72,6 +72,7 @@ classDiagram
     +clearStatus() void
     +receiveEffect(effect: Effect, currentTurn: int) void
     +expireEffects(currentTurn: int) void
+    +restore() void
     +getHp() int
     +getMaxHp() int
     +getAtk() int
@@ -186,6 +187,24 @@ classDiagram
     -alertCriticalHp(battle: Battle, alertedPokeSals: Set~PokeSal~) void
     -saveResult(battle: Battle) void
     -endTurn(self: PokeSal, opponent: PokeSal, battleground: Battleground, turnNumber: int) void
+  }
+
+  class RunTournamentUseCase {
+    -matchRunner: MatchRunner
+    -battleCli: BattleCli
+    +execute(trainers: List~Trainer~) Trainer
+    -playRound(trainers: List~Trainer~) List~Trainer~
+  }
+
+  class MatchRunner {
+    <<interface>>
+    +run(trainerA: Trainer, trainerB: Trainer) BattleResult
+  }
+
+  class DefaultMatchRunner {
+    -runBattleUseCase: RunBattleUseCase
+    -randomGenerator: RandomGenerator
+    +run(trainerA: Trainer, trainerB: Trainer) BattleResult
   }
 
   class BattleResult {
@@ -326,6 +345,7 @@ classDiagram
     +onTurnEnd(self: PokeSal) void
     +onAttack(self: PokeSal, battleground: Battleground) double
     +preventsStatusApplication(self: PokeSal) boolean
+    +reset() void
   }
 
   class LowHpAttackBoost {
@@ -334,6 +354,7 @@ classDiagram
     -active: boolean
     +getDescription() String
     +onDamageTaken(self: PokeSal, opponent: PokeSal, damageTaken: double) void
+    +reset() void
   }
 
   class Blaze {
@@ -364,6 +385,7 @@ classDiagram
     -active: boolean
     +onAttack(self: PokeSal, battleground: Battleground) double
     +onTurnEnd(self: PokeSal) void
+    +reset() void
   }
 
   %% ---------- Condições de status ----------
@@ -468,6 +490,11 @@ classDiagram
   RunBattleUseCase --> BattlegroundService
   RunBattleUseCase --> ResultRepository
   RunBattleUseCase --> BattleLogger
+  RunTournamentUseCase --> MatchRunner
+  RunTournamentUseCase ..> BattleResult
+  MatchRunner <|.. DefaultMatchRunner
+  DefaultMatchRunner --> RunBattleUseCase
+  DefaultMatchRunner --> RandomGenerator
   RunBattleUseCase --> TrainerNotifier
   RunBattleUseCase --> Clock
   RunBattleUseCase ..> BattleResult : cria
@@ -519,6 +546,7 @@ classDiagram
   style WeatherProvider fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style ResultRepository fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style TrainerNotifier fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
+  style MatchRunner fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style BattleLogger fill:#C8E6C9,stroke:#1B5E20,stroke-width:2px
   style DefaultRandomGenerator fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style DefaultBattlegroundService fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
@@ -531,5 +559,7 @@ classDiagram
   style BattlegroundConditions fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style Weather fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
   style TurnActionFactory fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style DefaultMatchRunner fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
+  style RunTournamentUseCase fill:#BBDEFB,stroke:#0D47A1,stroke-width:2px
 
   note "Legenda\nVerde: interfaces novas da Fase 03\nAzul: implementações e classes novas\nLaranja: classes existentes"
