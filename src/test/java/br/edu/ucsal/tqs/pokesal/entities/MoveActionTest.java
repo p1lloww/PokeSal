@@ -1,12 +1,16 @@
 package br.edu.ucsal.tqs.pokesal.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
@@ -15,22 +19,38 @@ import br.edu.ucsal.tqs.pokesal.entities.catalogs.PokeSalCatalog;
 import br.edu.ucsal.tqs.pokesal.entities.statusconditions.Poison;
 import br.edu.ucsal.tqs.pokesal.entities.turnactions.MoveAction;
 import br.edu.ucsal.tqs.pokesal.services.DamageCalculatorService;
+import br.edu.ucsal.tqs.pokesal.services.DamageResult;
 import br.edu.ucsal.tqs.pokesal.services.battleground.BattlegroundService;
 import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
 import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class MoveActionTest {
   private final Battleground terreno = new HotAsphalt();
-  private final RandomGenerator randomGenerator = mock(RandomGenerator.class);
-  private final BattlegroundService battlegroundService = mock(BattlegroundService.class);
-  private final BattleLogger battleLogger = mock(BattleLogger.class);
-  private final DamageCalculatorService damageCalculatorService =
-      new DamageCalculatorService(randomGenerator, battlegroundService);
+
+  @Mock
+  private RandomGenerator randomGenerator;
+
+  @Mock
+  private BattlegroundService battlegroundService;
+
+  @Mock
+  private BattleLogger battleLogger;
+
+  private DamageCalculatorService damageCalculatorService;
 
   @BeforeEach
-  void configurarSorteios() {
+  void setUp() {
+    damageCalculatorService = new DamageCalculatorService(randomGenerator, battlegroundService);
+  }
+
+  private void semSorte() {
     when(randomGenerator.nextInt(anyInt())).thenReturn(0);
     when(randomGenerator.nextDouble()).thenReturn(0.99);
     when(battlegroundService.isActive(any())).thenReturn(true);
@@ -52,6 +72,7 @@ public class MoveActionTest {
   void golpeComChanceTotalAplicaOStatus() {
     PokeSal bulbaSal = PokeSalCatalog.createBulbaSal();
     PokeSal charSal = PokeSalCatalog.createCharSal();
+    semSorte();
 
     acao(golpeVenenoso(1.0)).execute(bulbaSal, charSal, terreno);
 
@@ -62,6 +83,7 @@ public class MoveActionTest {
   void golpeComChanceZeroNuncaAplicaOStatus() {
     PokeSal bulbaSal = PokeSalCatalog.createBulbaSal();
     PokeSal charSal = PokeSalCatalog.createCharSal();
+    semSorte();
 
     acao(golpeVenenoso(0.0)).execute(bulbaSal, charSal, terreno);
 
@@ -72,6 +94,7 @@ public class MoveActionTest {
   void golpeSemStatusNaoAplicaNenhumStatus() {
     PokeSal bulbaSal = PokeSalCatalog.createBulbaSal();
     PokeSal charSal = PokeSalCatalog.createCharSal();
+    semSorte();
 
     acao(tackle(bulbaSal)).execute(bulbaSal, charSal, terreno);
 
@@ -82,6 +105,7 @@ public class MoveActionTest {
   void golpeQueDerrubaNaoAplicaStatus() {
     PokeSal bulbaSal = PokeSalCatalog.createBulbaSal();
     PokeSal charSal = PokeSalCatalog.createCharSal();
+    semSorte();
     charSal.takeDamage(38.0);
 
     acao(golpeVenenoso(1.0)).execute(bulbaSal, charSal, terreno);
@@ -94,6 +118,7 @@ public class MoveActionTest {
   void golpeAvisaAPassivaDoDefensorSobreODano() {
     PokeSal bulbaSal = PokeSalCatalog.createBulbaSal();
     PokeSal charSal = PokeSalCatalog.createCharSal();
+    semSorte();
     charSal.takeDamage(23.0);
 
     acao(tackle(bulbaSal)).execute(bulbaSal, charSal, terreno);
@@ -106,5 +131,28 @@ public class MoveActionTest {
   void construtorDeveLancarExcecaoComGolpeNulo() {
     assertThrows(NullPointerException.class,
         () -> new MoveAction(null, damageCalculatorService, randomGenerator, battleLogger));
+  }
+
+  @Test
+  @DisplayName("Golpe que falha na precisao deve causar dano zero e manter o HP do alvo")
+  void testGolpeErraQuandoPrecisaoFalha() {
+    PokeSal bulbaSal = PokeSalCatalog.createBulbaSal();
+    PokeSal charSal = PokeSalCatalog.createCharSal();
+    Move golpeImpreciso =
+        new Move("Golpe Impreciso", "Golpe de teste.", ElementType.PLANT, 45, null, 0.0, 70);
+    // Precisao 70: qualquer sorteio de 70 a 99 erra o alvo.
+    when(randomGenerator.nextInt(100)).thenReturn(70);
+
+    DamageResult resultado = damageCalculatorService.calculateDamage(
+        bulbaSal, charSal, golpeImpreciso, terreno);
+    acao(golpeImpreciso).execute(bulbaSal, charSal, terreno);
+
+    assertFalse(resultado.hit());
+    assertEquals(0.0, resultado.damage());
+    assertEquals(39, charSal.getHp());
+    verify(battleLogger).logMiss(bulbaSal, golpeImpreciso);
+    verify(battleLogger, never()).logDamage(any(), anyDouble(), anyBoolean());
+    verify(battlegroundService, never()).isActive(any());
+    verify(randomGenerator, never()).nextDouble();
   }
 }
