@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HealEffect.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.effects</a> &gt; <span class="el_source">HealEffect.java</span></div><h1>HealEffect.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.effects;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+
+/**
+ * Efeito que restaura uma quantidade fixa de HP no PokeSal alvo. É um efeito instantâneo, sem
+ * duração nem reversão.
+ */
+public class HealEffect implements Effect {
+
+  private final double healAmount;
+
+  /**
+   * Cria um novo efeito de cura com a quantidade especificada.
+   *
+   * @param healAmount a quantidade de HP a ser restaurada
+   * @throws IllegalArgumentException se healAmount não for positivo
+   */
+<span class="fc" id="L19">  public HealEffect(double healAmount) {</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">    if (healAmount &lt;= 0) {</span>
+<span class="fc" id="L21">      throw new IllegalArgumentException(&quot;A quantidade de cura precisa ser maior que 0&quot;);</span>
+    }
+
+<span class="fc" id="L24">    this.healAmount = healAmount;</span>
+<span class="fc" id="L25">  }</span>
+
+  @Override
+  public void applyEffect(PokeSal pokeSal) {
+<span class="fc" id="L29">    pokeSal.heal(pokeSal.getMaxHp() * healAmount);</span>
+<span class="fc" id="L30">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

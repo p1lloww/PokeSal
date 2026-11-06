@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Item.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities</a> &gt; <span class="el_source">Item.java</span></div><h1>Item.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities;
+
+import br.edu.ucsal.tqs.pokesal.entities.effects.Effect;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Representa um item de batalha que um treinador pode usar em seu PokeSal, aplicando
+ * um ou mais efeitos. É um dado imutável: os efeitos que compõem o item são fixos
+ * desde a criação.
+ */
+public class Item {
+
+  private final String name;
+  private final String description;
+  private final List&lt;Effect&gt; effects;
+
+  /**
+   * Cria um novo item com o nome, descrição e efeitos especificados.
+   *
+   * @param name o nome do item
+   * @param description a descrição do item
+   * @param effects a lista de efeitos que este item aplica ao ser usado
+   * @throws NullPointerException se name, description ou effects forem nulos
+   */
+<span class="fc" id="L26">  public Item(String name, String description, List&lt;Effect&gt; effects) {</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">    if (name == null) {</span>
+<span class="nc" id="L28">      throw new NullPointerException(&quot;O nome não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">    if (description == null) {</span>
+<span class="nc" id="L31">      throw new NullPointerException(&quot;A descrição não pode ser nula&quot;);</span>
+    }
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">    if (effects == null) {</span>
+<span class="nc" id="L34">      throw new NullPointerException(&quot;A lista de efeitos não pode ser nula&quot;);</span>
+    }
+
+<span class="fc" id="L37">    this.name = name;</span>
+<span class="fc" id="L38">    this.description = description;</span>
+<span class="fc" id="L39">    this.effects = new ArrayList&lt;&gt;(effects);</span>
+<span class="fc" id="L40">  }</span>
+
+  /**
+   * Usa este item no PokeSal informado, aplicando cada um de seus efeitos e
+   * agendando a reversão dos efeitos temporários para o turno correspondente.
+   *
+   * @param pokeSal o PokeSal que recebe os efeitos deste item
+   * @param currentTurn o número do turno atual, usado para calcular a expiração de
+   *     efeitos temporários
+   * @throws NullPointerException se pokeSal for nulo
+   */
+  public void useItem(PokeSal pokeSal, int currentTurn) {
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">    if (pokeSal == null) {</span>
+<span class="nc" id="L53">      throw new NullPointerException(&quot;O PokeSal não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    for (Effect effect : effects) {</span>
+<span class="fc" id="L57">      pokeSal.receiveEffect(effect, currentTurn);</span>
+<span class="fc" id="L58">    }</span>
+<span class="fc" id="L59">  }</span>
+
+  public String getName() {
+<span class="fc" id="L62">    return name;</span>
+  }
+
+  public String getDescription() {
+<span class="nc" id="L66">    return description;</span>
+  }
+
+  public List&lt;Effect&gt; getEffects() {
+<span class="nc" id="L70">    return new ArrayList&lt;&gt;(effects);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

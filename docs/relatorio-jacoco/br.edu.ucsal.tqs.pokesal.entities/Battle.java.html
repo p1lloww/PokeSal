@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Battle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities</a> &gt; <span class="el_source">Battle.java</span></div><h1>Battle.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities;
+
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Representa uma batalha entre dois treinadores, guardando os participantes, o
+ * terreno ativo, o histórico de turnos disputados e o vencedor, uma vez definido.
+ * Não conduz a batalha por si mesma — apenas mantém seu estado e verifica, a partir
+ * dele, se a batalha já foi decidida.
+ */
+public class Battle {
+
+  private final Trainer trainerA;
+  private final Trainer trainerB;
+  private final Battleground battleground;
+<span class="fc" id="L18">  private final List&lt;Turn&gt; turns = new ArrayList&lt;&gt;();</span>
+  private Trainer winner;
+
+  /**
+   * Cria uma nova batalha entre os dois treinadores informados, no terreno
+   * especificado.
+   *
+   * @param trainerA o primeiro treinador
+   * @param trainerB o segundo treinador
+   * @param battleground o terreno ativo nesta batalha
+   * @throws NullPointerException se trainerA, trainerB ou battleground forem nulos
+   */
+<span class="fc" id="L30">  public Battle(Trainer trainerA, Trainer trainerB, Battleground battleground) {</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">    if (trainerA == null) {</span>
+<span class="fc" id="L32">      throw new NullPointerException(&quot;O treinador A não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L34" title="All 2 branches covered.">    if (trainerB == null) {</span>
+<span class="fc" id="L35">      throw new NullPointerException(&quot;O treinador B não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L37" title="All 2 branches covered.">    if (battleground == null) {</span>
+<span class="fc" id="L38">      throw new NullPointerException(&quot;O terreno não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L41">    this.trainerA = trainerA;</span>
+<span class="fc" id="L42">    this.trainerB = trainerB;</span>
+<span class="fc" id="L43">    this.battleground = battleground;</span>
+<span class="fc" id="L44">  }</span>
+
+  /**
+   * Adiciona um turno já executado ao histórico desta batalha.
+   *
+   * @param turn o turno a ser adicionado
+   * @throws NullPointerException se turn for nulo
+   */
+  public void addTurn(Turn turn) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (turn == null) {</span>
+<span class="fc" id="L54">      throw new NullPointerException(&quot;O turno não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L57">    turns.add(turn);</span>
+<span class="fc" id="L58">  }</span>
+
+  /**
+   * Verifica, a partir do HP atual dos PokeSal dos dois treinadores, se a batalha
+   * já tem um vencedor, definindo-o caso um dos PokeSal tenha sido derrotado. Não
+   * tem efeito caso nenhum dos dois tenha sido derrotado, ou caso um vencedor já
+   * tenha sido definido anteriormente.
+   */
+  public void checkForWinner() {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">    if (winner != null) {</span>
+<span class="fc" id="L68">      return;</span>
+    }
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    if (trainerA.getPokeSal().getHp() &lt;= 0) {</span>
+<span class="fc" id="L72">      this.winner = trainerB;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    } else if (trainerB.getPokeSal().getHp() &lt;= 0) {</span>
+<span class="fc" id="L74">      this.winner = trainerA;</span>
+    }
+<span class="fc" id="L76">  }</span>
+
+  /**
+   * Indica se esta batalha já foi decidida.
+   *
+   * @return true se um vencedor já foi definido; false caso contrário
+   */
+  public boolean isOver() {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">    return winner != null;</span>
+  }
+
+  public Trainer getTrainerA() {
+<span class="fc" id="L88">    return trainerA;</span>
+  }
+
+  public Trainer getTrainerB() {
+<span class="fc" id="L92">    return trainerB;</span>
+  }
+
+  public Battleground getBattleground() {
+<span class="fc" id="L96">    return battleground;</span>
+  }
+
+  public List&lt;Turn&gt; getTurns() {
+<span class="fc" id="L100">    return new ArrayList&lt;&gt;(turns);</span>
+  }
+
+  public Trainer getWinner() {
+<span class="fc" id="L104">    return winner;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

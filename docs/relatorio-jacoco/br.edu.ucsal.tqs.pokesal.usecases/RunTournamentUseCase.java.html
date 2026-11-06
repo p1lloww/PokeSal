@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RunTournamentUseCase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.usecases</a> &gt; <span class="el_source">RunTournamentUseCase.java</span></div><h1>RunTournamentUseCase.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.usecases;
+
+import br.edu.ucsal.tqs.pokesal.entities.BattleResult;
+import br.edu.ucsal.tqs.pokesal.entities.Trainer;
+import br.edu.ucsal.tqs.pokesal.io.BattleCli;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Caso de uso responsável por conduzir um torneio eliminatório com 4 ou 8 treinadores. Os
+ * confrontos de cada fase seguem a ordem de inscrição (o 1º enfrenta o 2º, o 3º enfrenta o 4º, e
+ * assim por diante) e apenas o vencedor de cada batalha avança para a fase seguinte, até restar o
+ * campeão.
+ */
+public class RunTournamentUseCase {
+
+  private static final int SMALL_TOURNAMENT_SIZE = 4;
+  private static final int LARGE_TOURNAMENT_SIZE = 8;
+
+  private final MatchRunner matchRunner;
+  private final BattleCli battleCli;
+
+  /**
+   * Cria um novo caso de uso de torneio com os colaboradores informados.
+   *
+   * @param matchRunner o executor que disputa cada batalha do chaveamento
+   * @param battleCli   a CLI usada para anunciar os confrontos e o campeão
+   * @throws NullPointerException se algum dos argumentos for nulo
+   */
+<span class="fc" id="L30">  public RunTournamentUseCase(MatchRunner matchRunner, BattleCli battleCli) {</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">    if (matchRunner == null) {</span>
+<span class="nc" id="L32">      throw new NullPointerException(&quot;O executor de batalhas não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">    if (battleCli == null) {</span>
+<span class="nc" id="L35">      throw new NullPointerException(&quot;A CLI não pode ser nula&quot;);</span>
+    }
+
+<span class="fc" id="L38">    this.matchRunner = matchRunner;</span>
+<span class="fc" id="L39">    this.battleCli = battleCli;</span>
+<span class="fc" id="L40">  }</span>
+
+  /**
+   * Conduz o torneio com os treinadores informados, na ordem de inscrição, e retorna o campeão.
+   *
+   * @param trainers os treinadores inscritos, na ordem do chaveamento
+   * @return o treinador campeão
+   * @throws NullPointerException     se a lista ou algum treinador for nulo
+   * @throws IllegalArgumentException se a quantidade de treinadores não for 4 nem 8
+   * @throws IllegalStateException    se uma batalha terminar com um vencedor que não estava no
+   *                                  confronto
+   */
+  public Trainer execute(List&lt;Trainer&gt; trainers) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (trainers == null) {</span>
+<span class="fc" id="L54">      throw new NullPointerException(&quot;A lista de treinadores não pode ser nula&quot;);</span>
+    }
+<span class="fc bfc" id="L56" title="All 4 branches covered.">    if (trainers.size() != SMALL_TOURNAMENT_SIZE &amp;&amp; trainers.size() != LARGE_TOURNAMENT_SIZE) {</span>
+<span class="fc" id="L57">      throw new IllegalArgumentException(&quot;O torneio deve ter 4 ou 8 treinadores&quot;);</span>
+    }
+
+<span class="fc" id="L60">    List&lt;Trainer&gt; remaining = List.copyOf(trainers);</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    while (remaining.size() &gt; 1) {</span>
+<span class="fc" id="L62">      remaining = playRound(remaining);</span>
+    }
+
+<span class="fc" id="L65">    Trainer champion = remaining.get(0);</span>
+<span class="fc" id="L66">    battleCli.announceChampion(champion);</span>
+<span class="fc" id="L67">    return champion;</span>
+  }
+
+  /**
+   * Disputa todos os confrontos de uma fase e retorna os vencedores, na mesma ordem dos
+   * confrontos.
+   *
+   * @param trainers os treinadores que disputam a fase
+   * @return os treinadores que avançam para a próxima fase
+   */
+  private List&lt;Trainer&gt; playRound(List&lt;Trainer&gt; trainers) {
+<span class="fc" id="L78">    String roundName = roundName(trainers.size());</span>
+<span class="fc" id="L79">    List&lt;Trainer&gt; winners = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">    for (int i = 0; i &lt; trainers.size(); i += 2) {</span>
+<span class="fc" id="L82">      Trainer trainerA = trainers.get(i);</span>
+<span class="fc" id="L83">      Trainer trainerB = trainers.get(i + 1);</span>
+
+<span class="fc" id="L85">      battleCli.announceMatch(roundName, trainerA, trainerB);</span>
+<span class="fc" id="L86">      BattleResult result = matchRunner.run(trainerA, trainerB);</span>
+<span class="fc" id="L87">      winners.add(winnerOf(result, trainerA, trainerB));</span>
+    }
+
+<span class="fc" id="L90">    return winners;</span>
+  }
+
+  private static Trainer winnerOf(BattleResult result, Trainer trainerA, Trainer trainerB) {
+<span class="fc" id="L94">    Trainer winner = result.winner();</span>
+<span class="fc bfc" id="L95" title="All 4 branches covered.">    if (winner != trainerA &amp;&amp; winner != trainerB) {</span>
+<span class="fc" id="L96">      throw new IllegalStateException(&quot;O vencedor da batalha não participou do confronto&quot;);</span>
+    }
+<span class="fc" id="L98">    return winner;</span>
+  }
+
+  private static String roundName(int trainersInRound) {
+<span class="fc bfc" id="L102" title="All 3 branches covered.">    return switch (trainersInRound) {</span>
+<span class="fc" id="L103">      case LARGE_TOURNAMENT_SIZE -&gt; &quot;Quartas de final&quot;;</span>
+<span class="fc" id="L104">      case SMALL_TOURNAMENT_SIZE -&gt; &quot;Semifinal&quot;;</span>
+<span class="fc" id="L105">      default -&gt; &quot;Final&quot;;</span>
+    };
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemAction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.turnactions</a> &gt; <span class="el_source">ItemAction.java</span></div><h1>ItemAction.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.turnactions;
+
+import br.edu.ucsal.tqs.pokesal.entities.Item;
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.Trainer;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
+
+/**
+ * Ação de turno que representa o uso de um item por um treinador, aplicando os efeitos do item no
+ * próprio PokeSal do ator e removendo o item da mochila do treinador após o uso. O uso do item é
+ * enviado ao BattleLogger.
+ */
+public class ItemAction implements TurnAction {
+
+  private final Item item;
+  private final Trainer trainer;
+  private final int currentTurnNumber;
+  private final BattleLogger battleLogger;
+
+  /**
+   * Cria uma nova ação de uso de item com o item, o treinador e o turno informados.
+   *
+   * @param item              o item a ser usado
+   * @param trainer           o treinador dono da mochila da qual o item será removido
+   * @param currentTurnNumber o número do turno atual, usado para calcular a expiração de efeitos
+   *                          temporários
+   * @param battleLogger      o registro que recebe o evento de uso do item
+   * @throws NullPointerException se item, trainer ou battleLogger forem nulos
+   */
+  public ItemAction(Item item, Trainer trainer, int currentTurnNumber,
+<span class="fc" id="L32">      BattleLogger battleLogger) {</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">    if (item == null) {</span>
+<span class="nc" id="L34">      throw new NullPointerException(&quot;O item não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">    if (trainer == null) {</span>
+<span class="nc" id="L37">      throw new NullPointerException(&quot;O treinador não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    if (battleLogger == null) {</span>
+<span class="nc" id="L40">      throw new NullPointerException(&quot;O registro de batalha não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L43">    this.item = item;</span>
+<span class="fc" id="L44">    this.trainer = trainer;</span>
+<span class="fc" id="L45">    this.currentTurnNumber = currentTurnNumber;</span>
+<span class="fc" id="L46">    this.battleLogger = battleLogger;</span>
+<span class="fc" id="L47">  }</span>
+
+  /**
+   * Executa esta ação: aplica os efeitos do item ao PokeSal ator e remove o item da mochila do
+   * treinador.
+   *
+   * @param actor        o PokeSal que recebe os efeitos do item
+   * @param opponent     o PokeSal adversário no turno; não utilizado por esta ação
+   * @param battleground o terreno ativo na batalha; não utilizado por esta ação
+   * @throws IllegalStateException se o item não estiver na mochila do treinador, seja porque já
+   *                               foi usado ou porque nunca foi adicionado
+   */
+  @Override
+  public void execute(PokeSal actor, PokeSal opponent, Battleground battleground) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (!trainer.getBackpack().contains(item)) {</span>
+<span class="fc" id="L62">      throw new IllegalStateException(&quot;O item &quot; + item.getName()</span>
+          + &quot; não está na mochila do treinador&quot;);
+    }
+
+<span class="fc" id="L66">    item.useItem(actor, currentTurnNumber);</span>
+<span class="fc" id="L67">    trainer.removeItem(item);</span>
+<span class="fc" id="L68">    battleLogger.logItemUse(actor, item);</span>
+<span class="fc" id="L69">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

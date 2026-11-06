@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChooseItemsUseCase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.usecases</a> &gt; <span class="el_source">ChooseItemsUseCase.java</span></div><h1>ChooseItemsUseCase.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.usecases;
+
+import br.edu.ucsal.tqs.pokesal.entities.Item;
+import br.edu.ucsal.tqs.pokesal.entities.Trainer;
+import br.edu.ucsal.tqs.pokesal.io.BattleCli;
+
+/**
+ * Caso de uso responsável por capturar, via CLI, a escolha de itens de mochila de um
+ * treinador antes do início da batalha, respeitando o limite de dois itens.
+ */
+public class ChooseItemsUseCase {
+
+  private final BattleCli battleCli;
+
+  /**
+   * Cria um novo caso de uso de escolha de itens, usando a CLI informada.
+   *
+   * @param battleCli a CLI usada para interação com o jogador
+   */
+<span class="fc" id="L20">  public ChooseItemsUseCase(BattleCli battleCli) {</span>
+<span class="fc" id="L21">    this.battleCli = battleCli;</span>
+<span class="fc" id="L22">  }</span>
+
+  /**
+   * Executa o caso de uso, adicionando à mochila do treinador os itens escolhidos
+   * pelo jogador via CLI.
+   *
+   * @param trainer o treinador que vai escolher os itens
+   */
+  public void execute(Trainer trainer) {
+<span class="fc" id="L31">    boolean wantsMoreItems = true;</span>
+
+<span class="fc bfc" id="L33" title="All 4 branches covered.">    while (wantsMoreItems &amp;&amp; trainer.getBackpack().size() &lt; Trainer.MAX_ITEMS) {</span>
+<span class="fc" id="L34">      Item chosenItem = battleCli.promptItemSelection(trainer.getBackpack().size());</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">      if (chosenItem == null) {</span>
+<span class="fc" id="L36">        wantsMoreItems = false;</span>
+      } else {
+<span class="fc" id="L38">        trainer.addItem(chosenItem);</span>
+      }
+<span class="fc" id="L40">    }</span>
+<span class="fc" id="L41">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

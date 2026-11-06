@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultBattlegroundService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.services.battleground</a> &gt; <span class="el_source">DefaultBattlegroundService.java</span></div><h1>DefaultBattlegroundService.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.services.battleground;
+
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.BattlegroundConditions;
+import java.time.Clock;
+import java.time.LocalTime;
+
+/**
+ * Implementação de BattlegroundService que monta as condições atuais a partir de um Clock e de um
+ * WeatherProvider, e pergunta ao próprio terreno se ele está ativo nessas condições.
+ */
+public class DefaultBattlegroundService implements BattlegroundService {
+
+  private final Clock clock;
+  private final WeatherProvider weatherProvider;
+
+  /**
+   * Cria um novo serviço de terreno com o relógio e o provedor de clima informados.
+   *
+   * @param clock           o relógio usado para obter o horário atual
+   * @param weatherProvider o provedor do clima atual
+   * @throws NullPointerException se clock ou weatherProvider forem nulos
+   */
+<span class="fc" id="L24">  public DefaultBattlegroundService(Clock clock, WeatherProvider weatherProvider) {</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    if (clock == null) {</span>
+<span class="fc" id="L26">      throw new NullPointerException(&quot;O relógio não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L28" title="All 2 branches covered.">    if (weatherProvider == null) {</span>
+<span class="fc" id="L29">      throw new NullPointerException(&quot;O provedor de clima não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L32">    this.clock = clock;</span>
+<span class="fc" id="L33">    this.weatherProvider = weatherProvider;</span>
+<span class="fc" id="L34">  }</span>
+
+  @Override
+  public boolean isActive(Battleground battleground) {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">    if (battleground == null) {</span>
+<span class="fc" id="L39">      throw new NullPointerException(&quot;O terreno não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L42">    BattlegroundConditions conditions = new BattlegroundConditions(</span>
+<span class="fc" id="L43">        LocalTime.now(clock), weatherProvider.getCurrentWeather());</span>
+<span class="fc" id="L44">    return battleground.isActive(conditions);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

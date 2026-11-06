@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BattleResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities</a> &gt; <span class="el_source">BattleResult.java</span></div><h1>BattleResult.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities;
+
+/**
+ * Resultado de uma batalha encerrada, salvo no repositório de resultados.
+ *
+ * @param winner        o treinador vencedor
+ * @param loser         o treinador perdedor
+ * @param turnCount     o número de turnos disputados
+ * @param winnerPokeSal o nome do PokeSal usado pelo vencedor
+ * @param loserPokeSal  o nome do PokeSal usado pelo perdedor
+ */
+<span class="fc" id="L12">public record BattleResult(Trainer winner, Trainer loser, int turnCount, String winnerPokeSal,</span>
+    String loserPokeSal) {
+
+  /**
+   * Cria o resultado a partir de uma batalha já encerrada.
+   *
+   * @param battle a batalha encerrada
+   * @return o resultado da batalha
+   * @throws IllegalStateException se a batalha ainda não tiver um vencedor
+   */
+  public static BattleResult from(Battle battle) {
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">    if (!battle.isOver()) {</span>
+<span class="nc" id="L24">      throw new IllegalStateException(&quot;A batalha ainda não terminou&quot;);</span>
+    }
+
+<span class="fc" id="L27">    Trainer winner = battle.getWinner();</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">    Trainer loser = winner == battle.getTrainerA() ? battle.getTrainerB() : battle.getTrainerA();</span>
+<span class="fc" id="L29">    return new BattleResult(winner, loser, battle.getTurns().size(),</span>
+<span class="fc" id="L30">        winner.getPokeSal().getName(), loser.getPokeSal().getName());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

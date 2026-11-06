@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemCatalog.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.catalogs</a> &gt; <span class="el_source">ItemCatalog.java</span></div><h1>ItemCatalog.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.catalogs;
+
+import br.edu.ucsal.tqs.pokesal.entities.Item;
+import br.edu.ucsal.tqs.pokesal.entities.effects.BurnHeal;
+import br.edu.ucsal.tqs.pokesal.entities.effects.HealEffect;
+import br.edu.ucsal.tqs.pokesal.entities.effects.ParalyzeHeal;
+import br.edu.ucsal.tqs.pokesal.entities.effects.SuperAntidote;
+import java.util.List;
+
+/**
+ * Catálogo fixo dos itens de mochila disponíveis para escolha antes de uma batalha. Classe
+ * utilitária, não instanciável.
+ */
+public final class ItemCatalog {
+
+  private static final double POTION_HEAL_PERCENTAGE = 0.20;
+  private static final double SUPER_POTION_HEAL_PERCENTAGE = 0.50;
+
+  private ItemCatalog() {
+  }
+
+  /**
+   * Retorna uma nova instância de Potion, que restaura 20% do HP máximo.
+   *
+   * @return uma nova instância de Potion
+   */
+  public static Item createPotion() {
+<span class="fc" id="L28">    return new Item(&quot;Potion&quot;, &quot;Restaura 20% do HP máximo.&quot;,</span>
+<span class="fc" id="L29">        List.of(new HealEffect(POTION_HEAL_PERCENTAGE)));</span>
+  }
+
+  /**
+   * Retorna uma nova instância de Super Potion, que restaura 50% do HP máximo.
+   *
+   * @return uma nova instância de Super Potion
+   */
+  public static Item createSuperPotion() {
+<span class="fc" id="L38">    return new Item(&quot;Super Potion&quot;, &quot;Restaura 50% do HP máximo.&quot;,</span>
+<span class="fc" id="L39">        List.of(new HealEffect(SUPER_POTION_HEAL_PERCENTAGE)));</span>
+  }
+
+  /**
+   * Retorna uma nova instância de Super Antidote.
+   *
+   * @return uma nova instância de Super Antidote
+   */
+  public static Item createSuperAntidote() {
+<span class="nc" id="L48">    return new Item(&quot;Super Antidote&quot;, &quot;Cura pouco HP; cura mais e remove o veneno &quot;</span>
+        + &quot;se o PokeSal estiver envenenado.&quot;,
+<span class="nc" id="L50">        List.of(new SuperAntidote()));</span>
+  }
+
+  /**
+   * Retorna uma nova instância de Burn Heal.
+   *
+   * @return uma nova instância de Burn Heal
+   */
+  public static Item createBurnHeal() {
+<span class="fc" id="L59">    return new Item(&quot;Burn Heal&quot;, &quot;Cura pouco HP; cura mais e remove a queimadura &quot;</span>
+        + &quot;se o PokeSal estiver queimado.&quot;,
+<span class="fc" id="L61">        List.of(new BurnHeal()));</span>
+  }
+
+  /**
+   * Retorna uma nova instância de Paralyze Heal.
+   *
+   * @return uma nova instância de Paralyze Heal
+   */
+  public static Item createParalyzeHeal() {
+<span class="nc" id="L70">    return new Item(&quot;Paralyze Heal&quot;, &quot;Cura pouco HP; cura mais e remove a paralisia &quot;</span>
+        + &quot;se o PokeSal estiver paralisado.&quot;,
+<span class="nc" id="L72">        List.of(new ParalyzeHeal()));</span>
+  }
+
+  /**
+   * Retorna todos os itens disponíveis para escolha, na ordem em que devem ser exibidos ao
+   * jogador.
+   *
+   * @return a lista de itens disponíveis
+   */
+  public static List&lt;Item&gt; allAvailableItems() {
+<span class="nc" id="L82">    return List.of(</span>
+<span class="nc" id="L83">        createPotion(),</span>
+<span class="nc" id="L84">        createSuperPotion(),</span>
+<span class="nc" id="L85">        createSuperAntidote(),</span>
+<span class="nc" id="L86">        createBurnHeal(),</span>
+<span class="nc" id="L87">        createParalyzeHeal());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

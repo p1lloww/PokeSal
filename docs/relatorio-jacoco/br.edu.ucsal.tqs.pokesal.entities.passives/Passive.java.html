@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Passive.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.passives</a> &gt; <span class="el_source">Passive.java</span></div><h1>Passive.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.passives;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+
+/**
+ * Representa uma habilidade passiva que um PokeSal carrega, reagindo automaticamente a eventos de
+ * batalha como entrar em campo, sofrer dano ou o fim de um turno, sem exigir ação do jogador. Cada
+ * implementação concreta define apenas os eventos que lhe são relevantes, os demais métodos herdam
+ * o comportamento neutro (sem efeito) declarado nesta interface.
+ */
+public interface Passive {
+
+  /**
+   * Retorna o nome de exibição da habilidade.
+   *
+   * @return o nome da passiva, como &quot;Blaze&quot; ou &quot;Intimidate&quot;
+   */
+  String getName();
+
+  /**
+   * Retorna a descrição textual do efeito da habilidade, exibida ao jogador.
+   *
+   * @return a descrição da passiva
+   */
+  String getDescription();
+
+  /**
+   * Reage ao momento em que o PokeSal dono desta passiva entra em campo no início da batalha.
+   *
+   * @param self o PokeSal dono desta passiva
+   * @param opponent o PokeSal adversário presente na batalha
+   */
+  default void onSwitchIn(PokeSal self, PokeSal opponent) {
+<span class="fc" id="L35">  }</span>
+
+  /**
+   * Reage ao evento de o PokeSal dono desta passiva sofrer dano, permitindo aplicar efeitos
+   * condicionais como buffs ativados por HP baixo.
+   *
+   * @param self o PokeSal dono desta passiva
+   * @param opponent o PokeSal adversário que causou o dano
+   * @param damageTaken a quantidade de dano recebida neste evento
+   */
+  default void onDamageTaken(PokeSal self, PokeSal opponent, double damageTaken) {
+<span class="nc" id="L46">  }</span>
+
+  /**
+   * Reage ao fim de um turno de batalha, permitindo efeitos recorrentes como regeneração de HP ou
+   * custo de manutenção de um buff ativo.
+   *
+   * @param self o PokeSal dono desta passiva
+   */
+  default void onTurnEnd(PokeSal self) {
+<span class="fc" id="L55">  }</span>
+
+  /**
+   * Reage ao momento em que o PokeSal dono desta passiva executa um ataque, retornando um
+   * multiplicador de dano adicional. Usado por passivas sensíveis ao terreno da batalha.
+   *
+   * @param self o PokeSal dono desta passiva
+   * @param battleground o terreno ativo na batalha no momento do ataque
+   * @return o multiplicador de dano a ser aplicado; 1.0 significa nenhuma alteração
+   */
+  default double onAttack(PokeSal self, Battleground battleground) {
+<span class="fc" id="L66">    return 1.0;</span>
+  }
+
+  /**
+   * Indica se esta passiva impede a aplicação de qualquer condição de status negativa no PokeSal
+   * dono.
+   *
+   * @param self o PokeSal dono desta passiva
+   * @return true se a aplicação de status deve ser bloqueada; false caso contrário
+   */
+  default boolean preventsStatusApplication(PokeSal self) {
+<span class="fc" id="L77">    return false;</span>
+  }
+
+  /**
+   * Volta a passiva ao estado inicial, como se o PokeSal ainda não tivesse batalhado. Usado antes
+   * de cada batalha de um torneio, quando o PokeSal é restaurado.
+   */
+  default void reset() {
+<span class="nc" id="L85">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

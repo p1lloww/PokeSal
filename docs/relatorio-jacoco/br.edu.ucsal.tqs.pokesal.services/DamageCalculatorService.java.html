@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DamageCalculatorService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.services</a> &gt; <span class="el_source">DamageCalculatorService.java</span></div><h1>DamageCalculatorService.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.services;
+
+import br.edu.ucsal.tqs.pokesal.entities.Move;
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.TypeChart;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.services.battleground.BattlegroundService;
+import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
+
+/**
+ * Serviço responsável por calcular o dano de um golpe. Primeiro decide, com base na precisão do
+ * golpe, se ele acerta o alvo; depois combina o dano base (derivado de ATK, DEF e o poder do
+ * golpe), o multiplicador de vantagem de tipo, o efeito do terreno (quando ativo), a sinergia da
+ * passiva do atacante com esse terreno e, com uma chance de 6,25%, o multiplicador de acerto
+ * crítico.
+ */
+public class DamageCalculatorService {
+
+  private static final double DAMAGE_SCALE_FACTOR = 5.0;
+  private static final double CRITICAL_CHANCE = 0.0625;
+  private static final double CRITICAL_MULTIPLIER = 1.5;
+  private static final int ACCURACY_ROLL_BOUND = 100;
+
+  private final RandomGenerator randomGenerator;
+  private final BattlegroundService battlegroundService;
+
+  /**
+   * Cria um novo serviço de cálculo de dano com os colaboradores informados.
+   *
+   * @param randomGenerator     o gerador usado nos sorteios de precisão e acerto crítico
+   * @param battlegroundService o serviço que informa se o efeito do terreno está ativo
+   * @throws NullPointerException se randomGenerator ou battlegroundService forem nulos
+   */
+  public DamageCalculatorService(RandomGenerator randomGenerator,
+<span class="fc" id="L35">      BattlegroundService battlegroundService) {</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">    if (randomGenerator == null) {</span>
+<span class="nc" id="L37">      throw new NullPointerException(&quot;O gerador aleatório não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    if (battlegroundService == null) {</span>
+<span class="nc" id="L40">      throw new NullPointerException(&quot;O serviço de terreno não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L43">    this.randomGenerator = randomGenerator;</span>
+<span class="fc" id="L44">    this.battlegroundService = battlegroundService;</span>
+<span class="fc" id="L45">  }</span>
+
+  /**
+   * Calcula o dano de um golpe de attacker contra defender. O golpe acerta quando o valor sorteado
+   * entre 0 e 99 é menor que sua precisão; caso erre, o dano é zero e nenhum outro sorteio é feito.
+   * Caso acerte, o golpe é crítico quando o valor sorteado entre 0.0 e 1.0 é menor que 0.0625.
+   *
+   * @param attacker     o PokeSal que executa o golpe
+   * @param defender     o PokeSal que recebe o golpe
+   * @param move         o golpe utilizado
+   * @param battleground o terreno da batalha
+   * @return o resultado do cálculo, com o dano final e se houve acerto, crítico e efeito de terreno
+   * @throws NullPointerException se attacker, defender, move ou battleground forem nulos
+   */
+  public DamageResult calculateDamage(PokeSal attacker, PokeSal defender, Move move,
+      Battleground battleground) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">    if (attacker == null) {</span>
+<span class="fc" id="L62">      throw new NullPointerException(&quot;O atacante não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L64" title="All 2 branches covered.">    if (defender == null) {</span>
+<span class="fc" id="L65">      throw new NullPointerException(&quot;O defensor não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L67" title="All 2 branches covered.">    if (move == null) {</span>
+<span class="fc" id="L68">      throw new NullPointerException(&quot;O golpe não pode ser nulo&quot;);</span>
+    }
+<span class="fc bfc" id="L70" title="All 2 branches covered.">    if (battleground == null) {</span>
+<span class="fc" id="L71">      throw new NullPointerException(&quot;O terreno não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">    if (randomGenerator.nextInt(ACCURACY_ROLL_BOUND) &gt;= move.accuracy()) {</span>
+<span class="fc" id="L75">      return DamageResult.miss();</span>
+    }
+
+<span class="fc" id="L78">    double baseDamage = calculateBaseDamage(attacker, defender, move);</span>
+<span class="fc" id="L79">    double typeMultiplier = TypeChart.getMultiplier(move.type(), defender.getElementType());</span>
+<span class="fc" id="L80">    double damage = baseDamage * typeMultiplier;</span>
+
+<span class="fc" id="L82">    boolean battlegroundApplied = false;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">    if (battlegroundService.isActive(battleground)) {</span>
+<span class="fc" id="L84">      double modifiedDamage = battleground.modifyDamage(damage, move.type());</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">      battlegroundApplied = modifiedDamage != damage;</span>
+<span class="fc" id="L86">      damage = modifiedDamage;</span>
+    }
+<span class="fc" id="L88">    damage = damage * attacker.getPassive().onAttack(attacker, battleground);</span>
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    boolean critical = randomGenerator.nextDouble() &lt; CRITICAL_CHANCE;</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">    if (critical) {</span>
+<span class="fc" id="L92">      damage = damage * CRITICAL_MULTIPLIER;</span>
+    }
+
+<span class="fc" id="L95">    return new DamageResult(damage, true, critical, battlegroundApplied);</span>
+  }
+
+  /**
+   * Calcula o dano base de um golpe, a partir do ATK do atacante, do DEF do defensor e do poder do
+   * golpe.
+   *
+   * @param attacker o PokeSal que executa o golpe
+   * @param defender o PokeSal que recebe o golpe
+   * @param move     o golpe utilizado
+   * @return o dano base, antes da aplicação de multiplicadores de tipo, terreno e passiva
+   */
+  private double calculateBaseDamage(PokeSal attacker, PokeSal defender, Move move) {
+<span class="fc" id="L108">    return ((double) attacker.getAtk() / defender.getDef()) * move.power() / DAMAGE_SCALE_FACTOR;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

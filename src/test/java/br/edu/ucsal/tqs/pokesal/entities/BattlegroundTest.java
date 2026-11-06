@@ -1,12 +1,17 @@
 package br.edu.ucsal.tqs.pokesal.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.BattlegroundConditions;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Weather;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.fire.HotAsphalt;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.grass.CentralFlowerbed;
 import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.water.WaterPuddle;
 import br.edu.ucsal.tqs.pokesal.entities.catalogs.PokeSalCatalog;
+import java.time.LocalTime;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class BattlegroundTest {
@@ -97,5 +102,14 @@ public class BattlegroundTest {
 
     assertEquals(19, charSal.getHp());
     assertEquals(24, squirtSal.getHp());
+  }
+
+  @Test
+  @DisplayName("Condicoes do terreno devem rejeitar horario e clima nulos")
+  void condicoesRejeitamNulos() {
+    assertThrows(NullPointerException.class,
+        () -> new BattlegroundConditions(null, Weather.SUNNY));
+    assertThrows(NullPointerException.class,
+        () -> new BattlegroundConditions(LocalTime.NOON, null));
   }
 }

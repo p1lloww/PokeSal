@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WaterPuddle.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.battlegrounds.water</a> &gt; <span class="el_source">WaterPuddle.java</span></div><h1>WaterPuddle.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.battlegrounds.water;
+
+import br.edu.ucsal.tqs.pokesal.entities.ElementType;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.BattlegroundConditions;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Weather;
+
+/**
+ * Terreno que representa uma poça de chuva no estacionamento da UCSal, aumentando o dano de golpes
+ * do tipo Água em 10%. Com sol forte a poça seca, então o efeito fica desativado quando o clima
+ * está ensolarado.
+ */
+<span class="fc" id="L13">public class WaterPuddle implements Battleground {</span>
+
+  private static final double WATER_DAMAGE_MULTIPLIER = 1.10;
+
+  @Override
+  public String getName() {
+<span class="nc" id="L19">    return &quot;Water Puddle&quot;;</span>
+  }
+
+  @Override
+  public String getDescription() {
+<span class="nc" id="L24">    return &quot;Aumenta o dano de golpes do tipo Água em 10%. Inativo com sol.&quot;;</span>
+  }
+
+  @Override
+  public double modifyDamage(double baseDamage, ElementType attackType) {
+<span class="fc bfc" id="L29" title="All 2 branches covered.">    if (attackType == ElementType.WATER) {</span>
+<span class="fc" id="L30">      return baseDamage * WATER_DAMAGE_MULTIPLIER;</span>
+    }
+
+<span class="fc" id="L33">    return baseDamage;</span>
+  }
+
+  @Override
+  public boolean isActive(BattlegroundConditions conditions) {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">    return conditions.weather() != Weather.SUNNY;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

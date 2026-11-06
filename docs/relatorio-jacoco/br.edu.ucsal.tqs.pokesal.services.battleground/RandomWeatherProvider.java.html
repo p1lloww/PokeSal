@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomWeatherProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.services.battleground</a> &gt; <span class="el_source">RandomWeatherProvider.java</span></div><h1>RandomWeatherProvider.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.services.battleground;
+
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Weather;
+import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
+
+/**
+ * Implementação de WeatherProvider usada no jogo real enquanto não há um serviço de clima de
+ * verdade: sorteia o clima uma única vez, na criação, e o mantém durante toda a execução.
+ */
+public class RandomWeatherProvider implements WeatherProvider {
+
+  private final Weather weather;
+
+  /**
+   * Cria um novo provedor, sorteando o clima com o gerador informado.
+   *
+   * @param randomGenerator o gerador usado para sortear o clima
+   * @throws NullPointerException se randomGenerator for nulo
+   */
+<span class="fc" id="L20">  public RandomWeatherProvider(RandomGenerator randomGenerator) {</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">    if (randomGenerator == null) {</span>
+<span class="fc" id="L22">      throw new NullPointerException(&quot;O gerador aleatório não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L25">    Weather[] options = Weather.values();</span>
+<span class="fc" id="L26">    this.weather = options[randomGenerator.nextInt(options.length)];</span>
+<span class="fc" id="L27">  }</span>
+
+  @Override
+  public Weather getCurrentWeather() {
+<span class="fc" id="L31">    return weather;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

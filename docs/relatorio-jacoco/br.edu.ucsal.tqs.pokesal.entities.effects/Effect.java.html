@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Effect.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.effects</a> &gt; <span class="el_source">Effect.java</span></div><h1>Effect.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.effects;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+
+/**
+ * Representa o efeito de um item de batalha, aplicado a um PokeSal quando o item é
+ * utilizado. Um efeito pode ser instantâneo (como restaurar HP) ou temporário, caso em
+ * que sua reversão é agendada e executada automaticamente ao final do turno de
+ * expiração. Cada implementação concreta define apenas o comportamento que lhe é
+ * próprio; os demais métodos herdam o comportamento neutro declarado nesta interface.
+ */
+public interface Effect {
+
+  /**
+   * Aplica este efeito ao PokeSal informado. É sempre invocado exatamente uma vez,
+   * no momento em que o item correspondente é utilizado.
+   *
+   * @param pokeSal o PokeSal que recebe o efeito
+   */
+  void applyEffect(PokeSal pokeSal);
+
+  /**
+   * Reverte este efeito no PokeSal informado. É invocado apenas para efeitos
+   * temporários, exatamente uma vez, no turno em que a expiração está agendada.
+   *
+   * @param pokeSal o PokeSal do qual o efeito é revertido
+   */
+<span class="nc" id="L28">  default void removeEffect(PokeSal pokeSal) {}</span>
+
+  /**
+   * Indica se este efeito é temporário e deve ter sua reversão agendada ao ser aplicado.
+   *
+   * @return true se o efeito é temporário e será revertido posteriormente;
+   *     false se o efeito é instantâneo e permanente
+   */
+  default boolean isTemporary() {
+<span class="fc" id="L37">    return false;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

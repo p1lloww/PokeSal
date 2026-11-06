@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Turn.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities</a> &gt; <span class="el_source">Turn.java</span></div><h1>Turn.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities;
+
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnAction;
+
+/**
+ * Representa um turno de batalha, responsável por decidir a ordem de ação entre os dois PokeSal com
+ * base em seu SPD e executar as ações escolhidas por cada um, na ordem determinada. Não conhece os
+ * detalhes de implementação de cada ação — apenas delega a execução para a TurnAction
+ * correspondente.
+ */
+public class Turn {
+
+  private final int turnNumber;
+  private PokeSal firstActor;
+  private PokeSal secondActor;
+  private TurnAction firstAction;
+  private TurnAction secondAction;
+
+  /**
+   * Cria um novo turno com o número informado. A ordem de ação e as ações executadas só são
+   * definidas ao chamar {@link #execute}.
+   *
+   * @param turnNumber o número deste turno na batalha
+   */
+<span class="fc" id="L26">  public Turn(int turnNumber) {</span>
+<span class="fc" id="L27">    this.turnNumber = turnNumber;</span>
+<span class="fc" id="L28">  }</span>
+
+  /**
+   * Executa este turno: decide qual PokeSal age primeiro com base no SPD atual de cada um, executa
+   * a ação do primeiro e, caso o segundo ainda esteja vivo, executa a ação do segundo em seguida.
+   *
+   * @param pokeSal1     o primeiro PokeSal participante do turno
+   * @param pokeSal2     o segundo PokeSal participante do turno
+   * @param action1      a ação escolhida para pokeSal1
+   * @param action2      a ação escolhida para pokeSal2
+   * @param battleground o terreno ativo na batalha, usado no cálculo das ações
+   * @throws NullPointerException se algum dos argumentos for nulo
+   */
+  public void execute(PokeSal pokeSal1, PokeSal pokeSal2, TurnAction action1,
+      TurnAction action2, Battleground battleground) {
+<span class="fc bfc" id="L43" title="All 4 branches covered.">    if (pokeSal1 == null || pokeSal2 == null) {</span>
+<span class="fc" id="L44">      throw new NullPointerException(&quot;Os PokeSal não podem ser nulos&quot;);</span>
+    }
+<span class="fc bfc" id="L46" title="All 4 branches covered.">    if (action1 == null || action2 == null) {</span>
+<span class="fc" id="L47">      throw new NullPointerException(&quot;As ações não podem ser nulas&quot;);</span>
+    }
+
+    boolean pokeSal1First;
+<span class="fc bfc" id="L51" title="All 2 branches covered.">    if (pokeSal1.getSpd() == pokeSal2.getSpd()) {</span>
+<span class="fc" id="L52">      pokeSal1First = true;</span>
+    } else {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">      pokeSal1First = pokeSal1.getSpd() &gt; pokeSal2.getSpd();</span>
+    }
+
+<span class="fc bfc" id="L57" title="All 2 branches covered.">    if (pokeSal1First) {</span>
+<span class="fc" id="L58">      this.firstActor = pokeSal1;</span>
+<span class="fc" id="L59">      this.firstAction = action1;</span>
+<span class="fc" id="L60">      this.secondActor = pokeSal2;</span>
+<span class="fc" id="L61">      this.secondAction = action2;</span>
+    } else {
+<span class="fc" id="L63">      this.firstActor = pokeSal2;</span>
+<span class="fc" id="L64">      this.firstAction = action2;</span>
+<span class="fc" id="L65">      this.secondActor = pokeSal1;</span>
+<span class="fc" id="L66">      this.secondAction = action1;</span>
+    }
+
+<span class="fc" id="L69">    firstAction.execute(firstActor, secondActor, battleground);</span>
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    if (secondActor.getHp() &gt; 0) {</span>
+<span class="fc" id="L72">      secondAction.execute(secondActor, firstActor, battleground);</span>
+    }
+<span class="fc" id="L74">  }</span>
+
+  public int getTurnNumber() {
+<span class="fc" id="L77">    return turnNumber;</span>
+  }
+
+  public PokeSal getFirstActor() {
+<span class="fc" id="L81">    return firstActor;</span>
+  }
+
+  public PokeSal getSecondActor() {
+<span class="fc" id="L85">    return secondActor;</span>
+  }
+
+  public TurnAction getFirstAction() {
+<span class="fc" id="L89">    return firstAction;</span>
+  }
+
+  public TurnAction getSecondAction() {
+<span class="fc" id="L93">    return secondAction;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

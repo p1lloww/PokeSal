@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StatusHealEffect.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.entities.effects</a> &gt; <span class="el_source">StatusHealEffect.java</span></div><h1>StatusHealEffect.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.entities.effects;
+
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
+
+/**
+ * Base dos efeitos de cura que reagem a uma condição de status específica: restauram pouco HP
+ * quando o PokeSal alvo não está com essa condição, e restauram mais HP e removem a condição
+ * quando o PokeSal alvo está com ela. As subclasses definem apenas qual condição é curada.
+ */
+public abstract class StatusHealEffect implements Effect {
+
+  private static final double WEAK_HEAL_PERCENTAGE = 0.10;
+  private static final double STRONG_HEAL_PERCENTAGE = 0.25;
+
+  private final Class&lt;? extends StatusCondition&gt; curedStatus;
+
+  /**
+   * Cria o efeito de cura associado à condição de status informada.
+   *
+   * @param curedStatus a classe da condição de status que este efeito cura
+   */
+<span class="fc" id="L23">  protected StatusHealEffect(Class&lt;? extends StatusCondition&gt; curedStatus) {</span>
+<span class="fc" id="L24">    this.curedStatus = curedStatus;</span>
+<span class="fc" id="L25">  }</span>
+
+  @Override
+  public void applyEffect(PokeSal pokeSal) {
+<span class="fc bfc" id="L29" title="All 2 branches covered.">    if (curedStatus.isInstance(pokeSal.getStatusCondition())) {</span>
+<span class="fc" id="L30">      pokeSal.heal(pokeSal.getMaxHp() * STRONG_HEAL_PERCENTAGE);</span>
+<span class="fc" id="L31">      pokeSal.clearStatus();</span>
+    } else {
+<span class="fc" id="L33">      pokeSal.heal(pokeSal.getMaxHp() * WEAK_HEAL_PERCENTAGE);</span>
+    }
+<span class="fc" id="L35">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

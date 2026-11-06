@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RunBattleUseCase.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">pokesal</a> &gt; <a href="index.source.html" class="el_package">br.edu.ucsal.tqs.pokesal.usecases</a> &gt; <span class="el_source">RunBattleUseCase.java</span></div><h1>RunBattleUseCase.java</h1><pre class="source lang-java linenums">package br.edu.ucsal.tqs.pokesal.usecases;
+
+import br.edu.ucsal.tqs.pokesal.entities.Battle;
+import br.edu.ucsal.tqs.pokesal.entities.BattleResult;
+import br.edu.ucsal.tqs.pokesal.entities.PokeSal;
+import br.edu.ucsal.tqs.pokesal.entities.Trainer;
+import br.edu.ucsal.tqs.pokesal.entities.Turn;
+import br.edu.ucsal.tqs.pokesal.entities.battlegrounds.Battleground;
+import br.edu.ucsal.tqs.pokesal.entities.statusconditions.StatusCondition;
+import br.edu.ucsal.tqs.pokesal.entities.turnactions.TurnAction;
+import br.edu.ucsal.tqs.pokesal.io.BattleCli;
+import br.edu.ucsal.tqs.pokesal.repositories.ResultRepository;
+import br.edu.ucsal.tqs.pokesal.services.battleground.BattlegroundService;
+import br.edu.ucsal.tqs.pokesal.services.log.BattleLogger;
+import br.edu.ucsal.tqs.pokesal.services.notification.TrainerNotifier;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Caso de uso responsável por conduzir uma batalha do início ao fim, alternando entre capturar as
+ * ações escolhidas pelos treinadores e executar os turnos, até que a batalha tenha um vencedor.
+ * Também dispara os eventos de entrada em campo, no início da batalha, e de fim de turno, após cada
+ * turno, para as passivas, condições de status, terreno e efeitos temporários. Ao fim da batalha,
+ * o resultado é salvo no repositório; uma falha ao salvar é registrada, mas não invalida a batalha.
+ *
+ * &lt;p&gt;Cada treinador tem um tempo limite para escolher a ação do turno, medido pelo relógio
+ * recebido no construtor; quem passar do limite perde a vez naquele turno. Quando o HP de um
+ * PokeSal fica abaixo de 25% do máximo, o treinador recebe um alerta, uma única vez por batalha.
+ */
+public class RunBattleUseCase {
+
+  /** Tempo máximo para um treinador escolher a ação do turno. */
+<span class="fc" id="L36">  public static final Duration ACTION_TIME_LIMIT = Duration.ofSeconds(30);</span>
+
+  /** Fração do HP máximo abaixo da qual o HP do PokeSal é considerado crítico. */
+  public static final double CRITICAL_HP_RATIO = 0.25;
+
+<span class="fc" id="L41">  private static final TurnAction SKIPPED_ACTION = (actor, opponent, battleground) -&gt; { };</span>
+
+  private final BattleCli battleCli;
+  private final BattlegroundService battlegroundService;
+  private final ResultRepository resultRepository;
+  private final BattleLogger battleLogger;
+  private final TrainerNotifier trainerNotifier;
+  private final Clock clock;
+
+  /**
+   * Cria um novo caso de uso de condução de batalha com os colaboradores informados.
+   *
+   * @param battleCli           a CLI usada para interação com os jogadores
+   * @param battlegroundService o serviço que informa se o efeito do terreno está ativo
+   * @param resultRepository    o repositório onde o resultado da batalha é salvo
+   * @param battleLogger        o registro que recebe o início da batalha, os eventos de fim de
+   *                            turno e os erros
+   * @param trainerNotifier     o canal usado para enviar os alertas de HP crítico
+   * @param clock               o relógio usado para medir o tempo de escolha das ações
+   * @throws NullPointerException se algum dos argumentos for nulo
+   */
+  public RunBattleUseCase(BattleCli battleCli, BattlegroundService battlegroundService,
+      ResultRepository resultRepository, BattleLogger battleLogger,
+<span class="fc" id="L64">      TrainerNotifier trainerNotifier, Clock clock) {</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    if (battleCli == null) {</span>
+<span class="nc" id="L66">      throw new NullPointerException(&quot;A CLI não pode ser nula&quot;);</span>
+    }
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">    if (battlegroundService == null) {</span>
+<span class="nc" id="L69">      throw new NullPointerException(&quot;O serviço de terreno não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">    if (resultRepository == null) {</span>
+<span class="nc" id="L72">      throw new NullPointerException(&quot;O repositório de resultados não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">    if (battleLogger == null) {</span>
+<span class="nc" id="L75">      throw new NullPointerException(&quot;O registro de batalha não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">    if (trainerNotifier == null) {</span>
+<span class="nc" id="L78">      throw new NullPointerException(&quot;O notificador de treinador não pode ser nulo&quot;);</span>
+    }
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    if (clock == null) {</span>
+<span class="nc" id="L81">      throw new NullPointerException(&quot;O relógio não pode ser nulo&quot;);</span>
+    }
+
+<span class="fc" id="L84">    this.battleCli = battleCli;</span>
+<span class="fc" id="L85">    this.battlegroundService = battlegroundService;</span>
+<span class="fc" id="L86">    this.resultRepository = resultRepository;</span>
+<span class="fc" id="L87">    this.battleLogger = battleLogger;</span>
+<span class="fc" id="L88">    this.trainerNotifier = trainerNotifier;</span>
+<span class="fc" id="L89">    this.clock = clock;</span>
+<span class="fc" id="L90">  }</span>
+
+  /**
+   * Executa a batalha informada até que um vencedor seja definido e salva o resultado.
+   *
+   * @param battle a batalha a ser conduzida
+   */
+  public void execute(Battle battle) {
+<span class="fc" id="L98">    battleLogger.logBattleStart(battle.getTrainerA(), battle.getTrainerB());</span>
+
+<span class="fc" id="L100">    PokeSal pokeSalA = battle.getTrainerA().getPokeSal();</span>
+<span class="fc" id="L101">    PokeSal pokeSalB = battle.getTrainerB().getPokeSal();</span>
+<span class="fc" id="L102">    Battleground battleground = battle.getBattleground();</span>
+
+<span class="fc" id="L104">    pokeSalA.getPassive().onSwitchIn(pokeSalA, pokeSalB);</span>
+<span class="fc" id="L105">    pokeSalB.getPassive().onSwitchIn(pokeSalB, pokeSalA);</span>
+
+<span class="fc" id="L107">    int turnNumber = 1;</span>
+<span class="fc" id="L108">    Set&lt;PokeSal&gt; alertedPokeSals = new HashSet&lt;&gt;();</span>
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">    while (!battle.isOver()) {</span>
+<span class="fc" id="L111">      battleCli.renderBattleState(battle);</span>
+
+<span class="fc" id="L113">      TurnAction action1 = promptActionWithinTimeLimit(battle.getTrainerA(), turnNumber);</span>
+<span class="fc" id="L114">      TurnAction action2 = promptActionWithinTimeLimit(battle.getTrainerB(), turnNumber);</span>
+
+<span class="fc" id="L116">      Turn turn = new Turn(turnNumber);</span>
+<span class="fc" id="L117">      turn.execute(pokeSalA, pokeSalB, action1, action2, battleground);</span>
+
+<span class="fc" id="L119">      battle.addTurn(turn);</span>
+<span class="fc" id="L120">      battle.checkForWinner();</span>
+<span class="fc" id="L121">      alertCriticalHp(battle, alertedPokeSals);</span>
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">      if (!battle.isOver()) {</span>
+<span class="fc" id="L124">        endTurn(pokeSalA, pokeSalB, battleground, turnNumber);</span>
+<span class="fc" id="L125">        endTurn(pokeSalB, pokeSalA, battleground, turnNumber);</span>
+<span class="fc" id="L126">        battle.checkForWinner();</span>
+<span class="fc" id="L127">        alertCriticalHp(battle, alertedPokeSals);</span>
+      }
+
+<span class="fc" id="L130">      turnNumber++;</span>
+<span class="fc" id="L131">    }</span>
+
+<span class="fc" id="L133">    saveResult(battle);</span>
+
+<span class="fc" id="L135">    battleCli.renderBattleState(battle);</span>
+<span class="fc" id="L136">    battleCli.announceWinner(battle.getWinner());</span>
+<span class="fc" id="L137">  }</span>
+
+  /**
+   * Pede a ação do turno ao treinador e mede quanto tempo ele levou para escolher. Se passar do
+   * tempo limite, a ação escolhida é descartada e o treinador perde a vez.
+   *
+   * @param trainer    o treinador que vai escolher a ação
+   * @param turnNumber o número do turno atual
+   * @return a ação escolhida, ou uma ação que não faz nada se o tempo limite foi excedido
+   */
+  private TurnAction promptActionWithinTimeLimit(Trainer trainer, int turnNumber) {
+<span class="fc" id="L148">    Instant start = clock.instant();</span>
+<span class="fc" id="L149">    TurnAction action = battleCli.promptAction(trainer, turnNumber);</span>
+<span class="fc" id="L150">    Duration elapsed = Duration.between(start, clock.instant());</span>
+
+<span class="fc bfc" id="L152" title="All 2 branches covered.">    if (elapsed.compareTo(ACTION_TIME_LIMIT) &gt; 0) {</span>
+<span class="fc" id="L153">      battleLogger.logActionTimeout(trainer);</span>
+<span class="fc" id="L154">      return SKIPPED_ACTION;</span>
+    }
+<span class="fc" id="L156">    return action;</span>
+  }
+
+  /**
+   * Envia o alerta de HP crítico aos treinadores cujo PokeSal está abaixo do limite e ainda não
+   * foi alertado nesta batalha. Nada é enviado se a batalha já terminou.
+   *
+   * @param battle          a batalha em andamento
+   * @param alertedPokeSals os PokeSal que já receberam o alerta nesta batalha
+   */
+  private void alertCriticalHp(Battle battle, Set&lt;PokeSal&gt; alertedPokeSals) {
+<span class="fc bfc" id="L167" title="All 2 branches covered.">    if (battle.isOver()) {</span>
+<span class="fc" id="L168">      return;</span>
+    }
+
+<span class="fc" id="L171">    alertCriticalHp(battle.getTrainerA(), alertedPokeSals);</span>
+<span class="fc" id="L172">    alertCriticalHp(battle.getTrainerB(), alertedPokeSals);</span>
+<span class="fc" id="L173">  }</span>
+
+  private void alertCriticalHp(Trainer trainer, Set&lt;PokeSal&gt; alertedPokeSals) {
+<span class="fc" id="L176">    PokeSal pokeSal = trainer.getPokeSal();</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">    boolean critical = pokeSal.getHp() &gt; 0</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        &amp;&amp; pokeSal.getHp() &lt; pokeSal.getMaxHp() * CRITICAL_HP_RATIO;</span>
+<span class="fc bfc" id="L179" title="All 4 branches covered.">    if (!critical || !alertedPokeSals.add(pokeSal)) {</span>
+<span class="fc" id="L180">      return;</span>
+    }
+
+    try {
+<span class="fc" id="L184">      trainerNotifier.notifyCriticalHp(trainer, pokeSal);</span>
+<span class="fc" id="L185">    } catch (RuntimeException e) {</span>
+<span class="fc" id="L186">      battleLogger.logError(&quot;Não foi possível enviar o alerta de HP crítico&quot;, e);</span>
+<span class="fc" id="L187">    }</span>
+<span class="fc" id="L188">  }</span>
+
+  /**
+   * Salva o resultado da batalha encerrada. Caso o repositório falhe, o erro é registrado e a
+   * batalha continua valendo.
+   *
+   * @param battle a batalha encerrada
+   */
+  private void saveResult(Battle battle) {
+<span class="fc" id="L197">    BattleResult result = BattleResult.from(battle);</span>
+    try {
+<span class="fc" id="L199">      resultRepository.save(result);</span>
+<span class="fc" id="L200">    } catch (RuntimeException e) {</span>
+<span class="fc" id="L201">      battleLogger.logError(&quot;Não foi possível salvar o resultado da batalha&quot;, e);</span>
+<span class="fc" id="L202">    }</span>
+<span class="fc" id="L203">  }</span>
+
+  /**
+   * Aplica os efeitos de fim de turno ao PokeSal informado: dano da condição de status, efeito da
+   * passiva, efeito do terreno (apenas se o PokeSal ainda estiver de pé e o terreno estiver ativo)
+   * e expiração dos efeitos temporários agendados para este turno. Caso o PokeSal perca HP nesta
+   * etapa, a passiva é avisada do dano recebido.
+   *
+   * @param self         o PokeSal que está encerrando o turno
+   * @param opponent     o PokeSal adversário
+   * @param battleground o terreno ativo na batalha
+   * @param turnNumber   o número do turno que está sendo encerrado
+   */
+  private void endTurn(PokeSal self, PokeSal opponent, Battleground battleground,
+      int turnNumber) {
+<span class="fc" id="L218">    int hpBefore = self.getHp();</span>
+
+<span class="fc" id="L220">    StatusCondition status = self.getStatusCondition();</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">    if (status != null) {</span>
+<span class="fc" id="L222">      status.onTurnEnd(self);</span>
+<span class="fc" id="L223">      int hpLostToStatus = hpBefore - self.getHp();</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">      if (hpLostToStatus &gt; 0) {</span>
+<span class="fc" id="L225">        battleLogger.logStatusDamage(self, status, hpLostToStatus);</span>
+      }
+    }
+<span class="fc" id="L228">    self.getPassive().onTurnEnd(self);</span>
+
+<span class="fc" id="L230">    int hpLost = hpBefore - self.getHp();</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">    if (hpLost &gt; 0) {</span>
+<span class="fc" id="L232">      self.getPassive().onDamageTaken(self, opponent, hpLost);</span>
+    }
+
+<span class="fc bfc" id="L235" title="All 4 branches covered.">    if (self.getHp() &gt; 0 &amp;&amp; battlegroundService.isActive(battleground)) {</span>
+<span class="fc" id="L236">      int hpBeforeBattleground = self.getHp();</span>
+<span class="fc" id="L237">      battleground.onTurnEnd(self);</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">      if (self.getHp() != hpBeforeBattleground) {</span>
+<span class="fc" id="L239">        battleLogger.logBattlegroundEffect(battleground, self);</span>
+      }
+    }
+
+<span class="fc" id="L243">    self.expireEffects(turnNumber);</span>
+<span class="fc" id="L244">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
