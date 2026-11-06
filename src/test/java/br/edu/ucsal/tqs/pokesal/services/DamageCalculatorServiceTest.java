@@ -1,10 +1,11 @@
 package br.edu.ucsal.tqs.pokesal.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import br.edu.ucsal.tqs.pokesal.entities.ElementType;
@@ -22,18 +23,27 @@ import br.edu.ucsal.tqs.pokesal.services.random.RandomGenerator;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class DamageCalculatorServiceTest {
   private static final double DELTA = 0.0001;
 
   private static final Battleground TERRENO_NEUTRO = new CentralFlowerbed();
 
-  private final RandomGenerator randomGenerator = mock(RandomGenerator.class);
-  private final BattlegroundService battlegroundService = mock(BattlegroundService.class);
-  private final DamageCalculatorService service =
-      new DamageCalculatorService(randomGenerator, battlegroundService);
+  @Mock
+  private RandomGenerator randomGenerator;
+
+  @Mock
+  private BattlegroundService battlegroundService;
+
+  @InjectMocks
+  private DamageCalculatorService service;
 
   private DamageCalculatorService servicoSemSorte() {
     when(randomGenerator.nextInt(anyInt())).thenReturn(0);
@@ -172,5 +182,41 @@ public class DamageCalculatorServiceTest {
         service.calculateDamage(atacante, defensor, null, TERRENO_NEUTRO));
     assertThrows(NullPointerException.class, () ->
         service.calculateDamage(atacante, defensor, move, null));
+  }
+
+  @Test
+  @DisplayName("Dano deve ser multiplicado por 1.5 quando o gerador cai na faixa de critico")
+  void testAcertoCriticoComGeradorMockado() {
+    PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Intimidate());
+    PokeSal defensor = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Intimidate());
+    Move golpe = golpe(ElementType.FIRE, 50);
+    when(randomGenerator.nextInt(100)).thenReturn(0);
+    when(battlegroundService.isActive(TERRENO_NEUTRO)).thenReturn(true);
+    // Primeiro ataque fora da faixa de critico (0.99) e o segundo dentro dela (0.05 < 0.0625).
+    when(randomGenerator.nextDouble()).thenReturn(0.99, 0.05);
+
+    DamageResult normal = service.calculateDamage(atacante, defensor, golpe, TERRENO_NEUTRO);
+    DamageResult critico = service.calculateDamage(atacante, defensor, golpe, TERRENO_NEUTRO);
+
+    assertFalse(normal.critical());
+    assertTrue(critico.critical());
+    assertEquals(10.0, normal.damage(), DELTA);
+    assertEquals(15.0, critico.damage(), DELTA);
+  }
+
+  @ParameterizedTest(name = "sorteio {0} -> critico {1}")
+  @CsvSource({"0.0, true", "0.0624, true", "0.0625, false", "0.99, false"})
+  @DisplayName("Critico deve acontecer apenas quando o sorteio fica abaixo de 6,25%")
+  void criticoRespeitaOLimiteDaFaixa(double sorteio, boolean esperado) {
+    PokeSal atacante = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Intimidate());
+    PokeSal defensor = criarPokeSal(ElementType.FIRE, 50, 50, 50, new Intimidate());
+    when(randomGenerator.nextInt(100)).thenReturn(0);
+    when(battlegroundService.isActive(TERRENO_NEUTRO)).thenReturn(true);
+    when(randomGenerator.nextDouble()).thenReturn(sorteio);
+
+    DamageResult resultado = service.calculateDamage(atacante, defensor,
+        golpe(ElementType.FIRE, 50), TERRENO_NEUTRO);
+
+    assertEquals(esperado, resultado.critical());
   }
 }
